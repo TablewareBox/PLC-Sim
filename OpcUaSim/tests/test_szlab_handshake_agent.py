@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import csv
 from pathlib import Path
 from typing import Any
 
 import szlab_handshake_agent as handshake
+from common import load_csv
 
 
 class MemoryAdapter:
@@ -33,7 +33,7 @@ class MemoryAdapter:
 
 
 def test_catalog_matches_official_workflow_snapshot() -> None:
-    """验证 PLC-Sim 目录与当前 19 个 SZLab 工作流快照一致。
+    """验证 PLC-Sim 目录与当前 18 个 SZLab 工作流快照一致。
 
     参数：无。
     返回：无；断言工作流（Workflow）标识和动作目录。
@@ -41,8 +41,8 @@ def test_catalog_matches_official_workflow_snapshot() -> None:
 
     specs = handshake.build_workflow_specs()
 
-    assert len(specs) == 19
-    assert len(handshake.SUPPORTED_ACTIONS) == 37
+    assert len(specs) == 18
+    assert len(handshake.SUPPORTED_ACTIONS) == 34
     assert {item.workflow_id for item in specs} == {
         "szlab_magnetic_stirring_workflow",
         "szlab_photoshotting_workflow",
@@ -57,7 +57,6 @@ def test_catalog_matches_official_workflow_snapshot() -> None:
         "szlab_mixer_workflow",
         "szlab_mixer_pump_production",
         "szlab_material_s06_workflow",
-        "szlab_robot_liquid_stirring_demo_workflow",
         "s07_粉桶与烧杯搬运后固体称量",
         "s_z_lab_标准物料转运",
         "s_z_lab_单样品全流程_物料感知",
@@ -258,31 +257,11 @@ def test_beaker_transfer_chain_skips_selected_site_and_tool_witnesses() -> None:
     assert simulator.completed_actions == len(steps)
 
 
-def test_robot_liquid_stirring_demo_has_five_actions_and_empty_stations() -> None:
+def test_removed_robot_liquid_stirring_demo_is_not_exposed() -> None:
     specs = handshake.build_workflow_specs()
-    demo = next(
-        item
-        for item in specs
-        if item.workflow_id == "szlab_robot_liquid_stirring_demo_workflow"
-    )
-
-    assert demo.actions == (
-        "szlab_mixer_robot.submit_place_to_s06",
-        "szlab_mixer_pump.run_solvent_addition",
-        "szlab_mixer_robot.submit_pick_from_s06",
-        "szlab_mixer_robot.submit_place_to_s04",
-        "szlab_mixer_stirrer.run_stirring",
-    )
-
-    adapter = MemoryAdapter()
-    simulator = handshake.WorkflowHandshakeSimulator(
-        adapter,
-        workflow="szlab_robot_liquid_stirring_demo_workflow",
-    )
-    simulator.initialize()
-
-    assert adapter.read(handshake.S06_BEAKER_SENSOR) is False
-    assert adapter.read(handshake.s04_sensor(1)) is False
+    assert "szlab_robot_liquid_stirring_demo_workflow" not in {
+        spec.workflow_id for spec in specs
+    }
 
 
 def test_s04_three_action_handshake_changes_sensor_and_resets() -> None:
@@ -462,7 +441,7 @@ def test_s06_robot_workflow_runs_place_pump_pick_and_resets_sensor() -> None:
     assert simulator.all_cycles_idle() is True
 
 
-def test_material_s06_workflow_tracks_s03_s06_and_material_action_names() -> None:
+def test_material_s06_workflow_tracks_standard_transfer_and_material_pump() -> None:
     adapter = MemoryAdapter()
     simulator = handshake.WorkflowHandshakeSimulator(
         adapter,
@@ -476,8 +455,8 @@ def test_material_s06_workflow_tracks_s03_s06_and_material_action_names() -> Non
 
     clock = 0.0
     for task_number, action, expected_sensor, expected_value in (
-        (6, handshake.MATERIAL_S03_PICK_ACTION, handshake.S03_BEAKER_SENSOR, False),
-        (11, handshake.MATERIAL_S06_PLACE_ACTION, handshake.S06_BEAKER_SENSOR, True),
+        (6, "szlab_mixer_robot.pick", handshake.S03_BEAKER_SENSOR, False),
+        (11, "szlab_mixer_robot.place", handshake.S06_BEAKER_SENSOR, True),
     ):
         adapter.write(handshake.ROBOT_TASK_NUMBER, task_number)
         adapter.write(handshake.ROBOT_WRITE_DONE, True)
@@ -507,18 +486,8 @@ def test_material_s06_workflow_tracks_s03_s06_and_material_action_names() -> Non
     adapter.write(handshake.S06_PARAMS_WRITTEN, False)
     simulator.step(now=clock + 0.6)
 
-    adapter.write(handshake.ROBOT_TASK_NUMBER, 12)
-    adapter.write(handshake.ROBOT_WRITE_DONE, True)
-    accepted = simulator.step(now=clock + 1.0)
-    completed = simulator.step(now=clock + 1.5)
-    assert [(event.action, event.phase) for event in accepted] == [
-        (handshake.MATERIAL_S06_PICK_ACTION, "accepted")
-    ]
-    assert [(event.action, event.phase) for event in completed] == [
-        (handshake.MATERIAL_S06_PICK_ACTION, "completed")
-    ]
-    assert adapter.read(handshake.S06_BEAKER_SENSOR) is False
-    assert simulator.completed_actions == 4
+    assert adapter.read(handshake.S06_BEAKER_SENSOR) is True
+    assert simulator.completed_actions == 3
 
 
 def test_s07_robot_workflow_runs_three_tasks_and_rearms_next_cycle() -> None:
@@ -690,7 +659,6 @@ def test_s09_add_liquid_handshake_supports_two_complete_sequences() -> None:
         ]
         assert adapter.read(handshake.S09_DONE) == process
         if process == 8:
-            assert adapter.read(handshake.S09_BALANCE_STABLE) is True
             assert adapter.read(handshake.S09_BALANCE_READING) == 1.0
 
         adapter.write(handshake.S09_PROCESS, 0)
@@ -705,6 +673,36 @@ def test_s09_add_liquid_handshake_supports_two_complete_sequences() -> None:
 
     assert simulator.completed_actions == 8
     assert simulator.all_cycles_idle() is True
+
+
+def test_s09_density_handshake_writes_0810_balance_arrays() -> None:
+    adapter = MemoryAdapter()
+    simulator = handshake.WorkflowHandshakeSimulator(
+        adapter,
+        process_delay=0.5,
+        workflow=handshake.S09_WORKFLOW,
+    )
+    simulator.initialize()
+
+    assert handshake.S09_BALANCE_STABLE not in adapter.values
+    adapter.write(handshake.S09_DENSITY_COUNT, 3)
+    adapter.write(handshake.S09_PROCESS, 9)
+    adapter.write(handshake.S09_PARAMS_WRITTEN, True)
+
+    assert [event.phase for event in simulator.step(now=0.0)] == ["accepted"]
+    assert [event.phase for event in simulator.step(now=0.5)] == ["completed"]
+    assert adapter.read(handshake.S09_DONE) == 9
+    for base_name in (
+        handshake.S09_ASPIRATE_BALANCE_READINGS,
+        handshake.S09_DISPENSE_BALANCE_READINGS,
+    ):
+        names = handshake.s09_density_balance_vars(base_name)
+        assert [adapter.read(name) for name in names[:3]] == [1.0, 1.0, 1.0]
+        assert adapter.read(names[3]) == 0.0
+
+    cleanup = simulator.cleanup_values()
+    assert handshake.S09_BALANCE_STABLE not in cleanup
+    assert cleanup[handshake.S09_DENSITY_COUNT] == 0
 
 
 def test_s09_republishes_completion_edge_while_request_remains_asserted() -> None:
@@ -876,12 +874,8 @@ def test_every_handshake_variable_exists_in_deployment_plc_csvs() -> None:
         variables.update(simulator.initialization_values())
         variables.update(simulator.cleanup_values())
 
-    csv_path = Path(__file__).parents[1] / "data" / "szlab_plc_0731.csv"
-    with csv_path.open(encoding="utf-16", newline="") as file:
-        rows = csv.reader(file, delimiter="\t")
-        csv_variables = {
-            row[1].strip() for row in rows if len(row) > 1 and row[1].strip()
-        }
+    csv_path = Path(__file__).parents[1] / "data" / "szlab_plc_0810.csv"
+    csv_variables = {node.name_cn for node in load_csv(csv_path)}
 
     assert variables <= csv_variables
 

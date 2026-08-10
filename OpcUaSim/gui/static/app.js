@@ -520,7 +520,6 @@ const SZLAB_S04_WORKFLOWS = new Set([
   "szlab_magnetic_stirring_workflow",
   "szlab_robot_action_workflow",
   "s04_robot_stirring_workflow",
-  "szlab_robot_liquid_stirring_demo_workflow",
   "s_z_lab_单样品全流程_物料感知",
   "s_z_lab_单样品原子流程_无_s07_扫码",
 ]);
@@ -531,7 +530,6 @@ const SZLAB_PUMP_WORKFLOWS = new Set([
   "szlab_mixer_workflow",
   "szlab_mixer_pump_production",
   "szlab_material_s06_workflow",
-  "szlab_robot_liquid_stirring_demo_workflow",
   "s_z_lab_单样品全流程_物料感知",
   "s_z_lab_单样品原子流程_无_s07_扫码",
 ]);
@@ -650,8 +648,8 @@ $("agentProfile").onchange = () => {
     ? "config/szlab_handshake.yaml"
     : "config/xuse_handshake.yaml";
   if (szlab && $("simCsv").value.trim() === "data/demo_variables.csv") {
-    $("simCsv").value = "data/szlab_plc_0731.csv";
-    $("agentCsv").value = "data/szlab_plc_0731.csv";
+    $("simCsv").value = "data/szlab_plc_0810.csv";
+    $("agentCsv").value = "data/szlab_plc_0810.csv";
   }
   syncSzlabAgentOptions();
 };

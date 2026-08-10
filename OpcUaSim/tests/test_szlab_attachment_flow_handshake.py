@@ -45,13 +45,12 @@ def test_attachment_flow_has_an_independent_scan_free_handshake_catalog() -> Non
     attachment = specs[handshake.ATTACHMENT_SINGLE_SAMPLE_WORKFLOW]
 
     assert handshake.SINGLE_SAMPLE_WORKFLOW in specs
-    assert len(specs) == 19
+    assert len(specs) == 18
     assert attachment.actions == (
         "szlab_mixer_robot.pick",
         "szlab_mixer_robot.place",
         "host_node.transfer_resource",
         "szlab_s08_cap_station.process_liquid_reagent_100ml_cap_with_material",
-        "szlab_s07_solid_addition.prepare_powder_cartridge_site",
         "szlab_s07_solid_addition.dose_powder_with_two_materials",
         "szlab_mixer_pump.add_solvent_with_materials",
         "szlab_mixer_pipetting_station.add_liquid_with_materials",
@@ -64,11 +63,11 @@ def test_attachment_flow_has_an_independent_scan_free_handshake_catalog() -> Non
     assert "szlab_s07_solid_addition.scan_powder_cartridges" not in attachment.actions
 
 
-def test_attachment_flow_completes_s07_prepare_and_dose_without_scan_cycle() -> None:
-    """证明新流程可跳过工艺 1，直接完成 S07 准备与加粉握手。
+def test_attachment_flow_completes_s07_dose_without_scan_or_prepare_cycle() -> None:
+    """证明新流程可跳过工艺 1/2，直接完成 S07 加粉握手。
 
     参数：无。
-    返回：无；依次验证工艺 2、3 的 accepted/completed/reset 边沿和动作身份。
+    返回：无；验证工艺 3 的 accepted/completed/reset 边沿和动作身份。
     """
 
     adapter = MemoryAdapter()
@@ -79,12 +78,9 @@ def test_attachment_flow_completes_s07_prepare_and_dose_without_scan_cycle() -> 
     )
     simulator.initialize()
 
-    expected_actions = {
-        2: handshake.S07_MATERIAL_PREPARE_ACTION,
-        3: handshake.SINGLE_SAMPLE_S07_DOSE_ACTION,
-    }
+    expected_actions = {3: handshake.SINGLE_SAMPLE_S07_DOSE_ACTION}
     clock = 0.0
-    for process in (2, 3):
+    for process in (3,):
         adapter.write(handshake.S07_PROCESS, process)
         adapter.write(handshake.S07_PARAMS_WRITTEN, True)
         accepted = simulator.step(now=clock)
@@ -106,5 +102,5 @@ def test_attachment_flow_completes_s07_prepare_and_dose_without_scan_cycle() -> 
         ]
         clock += 1.0
 
-    assert simulator.completed_actions == 2
+    assert simulator.completed_actions == 1
     assert simulator.all_cycles_idle() is True

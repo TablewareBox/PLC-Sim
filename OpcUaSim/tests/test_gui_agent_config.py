@@ -20,7 +20,7 @@ def test_workflow_catalog_matches_agent_and_gui() -> None:
         assert f'value="{workflow_id}"' in html
 
 
-def test_robot_liquid_stirring_demo_exposes_position_and_pump_options() -> None:
+def test_removed_robot_liquid_stirring_demo_is_not_exposed() -> None:
     app_js = (Path(__file__).parents[1] / "gui" / "static" / "app.js").read_text(
         encoding="utf-8"
     )
@@ -32,8 +32,8 @@ def test_robot_liquid_stirring_demo_exposes_position_and_pump_options() -> None:
         "]);", maxsplit=1
     )[0]
 
-    assert workflow_id in s04_workflows
-    assert workflow_id in pump_workflows
+    assert workflow_id not in s04_workflows
+    assert workflow_id not in pump_workflows
 
 
 def test_official_stack_workflow_exposes_only_pump_options() -> None:

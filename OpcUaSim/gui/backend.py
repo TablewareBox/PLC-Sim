@@ -111,7 +111,6 @@ SZLAB_WORKFLOW_IDS = (
     "szlab_mixer_workflow",
     "szlab_mixer_pump_production",
     "szlab_material_s06_workflow",
-    "szlab_robot_liquid_stirring_demo_workflow",
     "s07_粉桶与烧杯搬运后固体称量",
     "s_z_lab_标准物料转运",
     "s_z_lab_单样品全流程_物料感知",
