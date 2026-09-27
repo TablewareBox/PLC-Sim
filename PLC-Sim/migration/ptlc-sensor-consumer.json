@@ -1,0 +1,18 @@
+{
+  "schema": "lab.ptlc-sensor-consumer/v1",
+  "device_repository": "pTLC_platformUI",
+  "device_commit": "3f09a97fccd761ea8ba28f93e24d1f4711ffab4c",
+  "entry": "eit_ptlc.simulation.plc_sensors",
+  "consumer": "PLC-Sim/ptlc_sensors.py",
+  "consumer_sha256": "2da552097eea97deb7c6c6175e15b89fa777f59425e1ccecf22b8961b982d421",
+  "original_model_sha256": "848138dc24215ba5ffcee5ae1a5856c3da0b15a8b750ff1d634651a7d0b49c79",
+  "tests_passed": 106,
+  "evidence_directory": "/home/tyzuo/labos-reorg-20260927/c22-ptlc-sensors-v8xpe6q4",
+  "evidence": {
+    "consumer.json": "8b66726dadc8f7a9501b97c4c644fa363a4a97f0400ee6b3d7877f557f5ce61d",
+    "consumer.xml": "b25c0fc4c996bf7a158b40a68c4f067bafbcdda1c77b6b9c271da2ecae854987"
+  },
+  "runtime_behavior_changed": false,
+  "new_isaac_run": false,
+  "plc_program_run": false
+}

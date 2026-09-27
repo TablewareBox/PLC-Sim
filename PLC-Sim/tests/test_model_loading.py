@@ -88,6 +88,10 @@ def test_ptlc_contract_uses_exact_device_package_types():
     assert ptlc_behavior.ActionContract is device.ActionContract
     assert ptlc_behavior.StationContract is device.StationContract
     assert ptlc_behavior.load_behavior_contracts is device.load_behavior_contracts
+    import ptlc_sensors
+    from eit_ptlc.simulation import plc_sensors as sensors
+    assert ptlc_sensors.PtlcSensorEngine is sensors.PtlcSensorEngine
+    assert ptlc_sensors.SensorTransition is sensors.SensorTransition
 
 
 @pytest.mark.parametrize("module,expected", [("server", 0), ("ptlc_behavior", 1)])

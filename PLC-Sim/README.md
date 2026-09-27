@@ -675,3 +675,7 @@ plc-sim szlab-handshake list
 ### C22a 行为契约归包记录
 
 默认契约读取PTLC包8份既有YAML，55动作字段与旧实现一致。91项原PTLC契约/plant/传感器/握手回归和15项加载/依赖隔离检查通过；缺SZLab不影响已提供PTLC包的入口，缺PTLC包只阻止所选PTLC契约。旧显式 `config/ptlc_behavior` 快照为兼容留存，不作为默认回退；真实安装包未构建，原生PLC/Isaac未运行。完整来源和初次隔离测试失败记录见 `migration/ptlc-contract-consumer.json`。
+
+### C22b 传感器定义消费
+
+`ptlc_sensors` 仅保留兼容导入，输入位、站点、气缸延迟与外部事件模型唯一实现已归 `eit_ptlc.simulation.plc_sensors`；106项既有契约/plant/传感器/握手及依赖加载检查通过。模型未改变，逻辑延迟反馈不冒充Isaac物理采样。来源与证据见 `migration/ptlc-sensor-consumer.json`。
