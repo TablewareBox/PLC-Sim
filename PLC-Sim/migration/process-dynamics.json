@@ -1,0 +1,21 @@
+{
+  "schema": "plc_sim.process-dynamics-migration/v1",
+  "source": "work/instruments-dev-20260916/packages/labos_instruments/thermal.py",
+  "source_commit": "0486bd8787a78a1b72ac551c9a424d7f6ea075a4",
+  "source_sha256": "a91e6dc99fcd430c850968c963d52ceb788ac10223d1f3668ef47e18b8aa8621",
+  "destination": "process_dynamics.py",
+  "destination_sha256": "3acceb2f0c78d1011026588cb8e5af98889902acf7520924c9f95d51e2275930",
+  "extraction": "_ThermalBlock._tick 中的一阶变化量和独立升降速率上限；无设备参数或状态",
+  "validation": {
+    "sdk_checks": 35,
+    "exact_arithmetic_cases": 1620
+  },
+  "evidence_directory": "/home/tyzuo/labos-reorg-20260927/c28-thermal-process-j0fbfm8x",
+  "scene_json_changed": false,
+  "default_run_changed": false,
+  "limitations": [
+    "新公共函数显式拒绝非有限/非法时间常数和速率，原设备构造器已有相应参数校验",
+    "只提供纯计算，不创建时钟、世界、线程或协议端点",
+    "设备消费者将在后续提交接入；不证明实物温控或Isaac热仿真"
+  ]
+}
