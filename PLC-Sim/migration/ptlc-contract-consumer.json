@@ -1,0 +1,24 @@
+{
+  "schema": "lab.ptlc-contract-consumer/v1",
+  "device_repository": "pTLC_platformUI",
+  "device_commit": "301db117cb526ddfa38a0e6c637c665ceddb8526",
+  "entry": "eit_ptlc.simulation.plc_behavior",
+  "consumer": "PLC-Sim/ptlc_behavior.py",
+  "consumer_sha256": "a88792c332c67f7613d3c1b9914e62db814583a7ceb8b579ff733fd7fc15ad17",
+  "tests": {
+    "existing_ptlc_regressions_passed": 91,
+    "loading_and_dependency_isolation_passed": 15,
+    "new_isaac_run": false,
+    "plc_program_run": false
+  },
+  "evidence_directory": "/home/tyzuo/labos-reorg-20260927/c22-ptlc-contract-kxy2xp_r",
+  "evidence": {
+    "consumer-tests.json": "343fa9acd914429c84657f8a3291ace2bcf862fc773973a204b7cb24de9a5baf",
+    "consumer-tests.xml": "8b1791df863c659a9e00355c9ba9efa3841801772c712ec21f5d127d495ffa67",
+    "loading-final.json": "5a21b9ae10326e587ab595fcc9a047d924312382fb2345e24d37836aa35e10f7",
+    "loading-final.xml": "5b7a1680382f660bafab7d1b6f947c9c6ae2ce8c1e8bb028ceadf12bcad636a0",
+    "isolation-initial-failure.txt": "b53e04f6799ede76f664912a3b37d1a399e7643b2e669962e953237168198161"
+  },
+  "compatibility": "默认契约读取设备包既有规格；旧显式config/ptlc_behavior快照和发布测试暂保留，未自动回退；通用服务不依赖PTLC包",
+  "remaining": "PTLC plant/sensors/动作映射和握手仍需逐项归包；未宣称联合仿真完成"
+}

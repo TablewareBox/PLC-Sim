@@ -278,7 +278,7 @@ OS Backend 是工作流、资源锁和跨设备协调的唯一真源；PLC-SIM �
 当前能力边界、剩余差距和建设优先级见
 [PTLC PLC 仿真能力评估](../docs/ptlc-plc-simulation-gap-assessment.md)。
 
-PTLC profile 是 PLC-SIM 内置的协议快照，不会在运行时导入或修改 PTLC 仓库：
+PTLC L2行为契约现在通过 `eit_ptlc.simulation.plc_behavior` 读取所选PTLC设备包的既有规格。运行PTLC代理须让该包可导入；缺少时明确失败，不回退内置模型。通用CSV服务仍可独立导入，原应用和PLC工程不会被装配。节点表和旧显式行为快照暂保留兼容，后续继续逐项归包：
 
 ```bash
 plc-sim server --profile ptlc --csv config/ptlc_nodes.yaml
@@ -671,3 +671,7 @@ plc-sim szlab-handshake list
 `plc_sim.signal_conditioning.PhotoelectricSignal` 从已冻结的水合光电实现逐字提取，只接收显式时间和布尔观测，输出value/quality/reason。九个原回归通过，覆盖双沿去抖、抖动、禁用/失效立即unknown、时钟回退与非有限时间；不持有时钟、不执行raycast或写PLC。来源见 `migration/signal-conditioning.json`。
 
 调用方应从设备包显式传入debounce_s和有效性；默认50ms只保留历史兼容。旧实现尚未验证构造参数范围，也不自主判断样本过期。该工具未接入任何现有PLC或水合运行入口，不能把去抖测试当作传感器或电气闭环验收。
+
+### C22a 行为契约归包记录
+
+默认契约读取PTLC包8份既有YAML，55动作字段与旧实现一致。91项原PTLC契约/plant/传感器/握手回归和15项加载/依赖隔离检查通过；缺SZLab不影响已提供PTLC包的入口，缺PTLC包只阻止所选PTLC契约。旧显式 `config/ptlc_behavior` 快照为兼容留存，不作为默认回退；真实安装包未构建，原生PLC/Isaac未运行。完整来源和初次隔离测试失败记录见 `migration/ptlc-contract-consumer.json`。

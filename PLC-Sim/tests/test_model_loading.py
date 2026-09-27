@@ -55,6 +55,8 @@ def test_legacy_imports_use_exact_package_types():
 
 @pytest.mark.parametrize("command,expected", [("server", 0), ("ptlc-handshake", 0), ("szlab-handshake", 1)])
 def test_missing_szlab_package_only_blocks_selected_szlab_entry(command, expected, tmp_path):
+    import eit_ptlc
+    ptlc_root = str(Path(eit_ptlc.__file__).parents[1])
     root = str(Path(__file__).parents[1])
     script = """
 import sys
@@ -64,12 +66,12 @@ class MissingSzlab(importlib.abc.MetaPathFinder):
         if fullname == 'szlab_poly_studio' or fullname.startswith('szlab_poly_studio.'):
             raise ModuleNotFoundError('isolated missing package', name=fullname)
 sys.meta_path.insert(0, MissingSzlab())
-sys.path.insert(0, sys.argv[1])
+sys.path[:0] = [sys.argv[1], sys.argv[3]]
 import cli
 raise SystemExit(cli.main([sys.argv[2], '--help']))
 """
     result = subprocess.run(
-        [sys.executable, "-I", "-B", "-c", script, root, command],
+        [sys.executable, "-I", "-B", "-c", script, root, command, ptlc_root],
         cwd=tmp_path, capture_output=True, text=True, timeout=15,
     )
     assert result.returncode == expected, result.stdout + result.stderr
@@ -78,3 +80,31 @@ raise SystemExit(cli.main([sys.argv[2], '--help']))
         assert "szlab_poly_studio" in result.stderr
     else:
         assert "usage:" in result.stdout
+
+
+def test_ptlc_contract_uses_exact_device_package_types():
+    import ptlc_behavior
+    from eit_ptlc.simulation import plc_behavior as device
+    assert ptlc_behavior.ActionContract is device.ActionContract
+    assert ptlc_behavior.StationContract is device.StationContract
+    assert ptlc_behavior.load_behavior_contracts is device.load_behavior_contracts
+
+
+@pytest.mark.parametrize("module,expected", [("server", 0), ("ptlc_behavior", 1)])
+def test_missing_ptlc_only_blocks_selected_ptlc_entry(module, expected, tmp_path):
+    root = str(Path(__file__).parents[1])
+    script = """
+import sys,importlib,importlib.abc
+class MissingPtlc(importlib.abc.MetaPathFinder):
+    def find_spec(self,fullname,path=None,target=None):
+        if fullname=='eit_ptlc' or fullname.startswith('eit_ptlc.'):
+            raise ModuleNotFoundError('隔离测试缺少PTLC包',name=fullname)
+sys.meta_path.insert(0,MissingPtlc())
+sys.path.insert(0,sys.argv[1])
+importlib.import_module(sys.argv[2])
+"""
+    result = subprocess.run([sys.executable, "-I", "-B", "-c", script, root, module],
+                            cwd=tmp_path, capture_output=True, text=True, timeout=15)
+    assert result.returncode == expected, result.stdout + result.stderr
+    if expected:
+        assert "无法加载设备包模块 eit_ptlc.simulation.plc_behavior" in result.stderr
