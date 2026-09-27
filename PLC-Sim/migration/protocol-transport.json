@@ -1,0 +1,27 @@
+{
+  "schema": "plc_sim.protocol-transport-migration/v1",
+  "source": "work/instruments-dev-20260916/packages/labos_instruments/transport.py",
+  "source_commit": "0486bd8787a78a1b72ac551c9a424d7f6ea075a4",
+  "source_sha256": "b1703ed61b68035e6e3b1f6bfbfeec7194e6da84722a0c95b4f54505f0c57b9e",
+  "destination": "protocol_transport.py",
+  "destination_sha256": "8dd20c68fcf58733979edb2cb5d1134c854c65a1c76acd98b12d0e8a7c24ab5c",
+  "changes": [
+    "FramedEndpoint error_response callback replaces device-specific PRCXI error dictionary; default closes invalid request without reply",
+    "tty imported only on PTY construction; TCP import has no POSIX dependency",
+    "framing/helper functions remain AST-equivalent"
+  ],
+  "validation": {
+    "transport_checks": 10,
+    "package_qualified_tcp_without_posix_or_device_imports": true,
+    "existing_service_changed": false,
+    "scene_json_changed": false
+  },
+  "limitations": [
+    "TCP loopback only; PTY POSIX only, owns newly created pseudoterminal",
+    "one start/close lifecycle; no restart/epoch/barrier or callback rollback",
+    "TCP daemon request threads may outlive listener close until timeout/callback returns; not joint lifecycle acceptance",
+    "PTY byte error replies retain original ERR framing; device content remains in callbacks",
+    "original facility consumer will switch separately; no production service change"
+  ],
+  "evidence_directory": "/home/tyzuo/labos-reorg-20260927/c28-protocol-transport-mcmbhmtf"
+}

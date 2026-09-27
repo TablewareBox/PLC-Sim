@@ -717,3 +717,11 @@ CLI、GUI默认节点表与握手参数引用PTLC包，GUI留空字段使用包�
 `plc_sim.process_dynamics.exponential_increment` 接收差值、秒单位的时间增量/时间常数、速率因子及可选上升/下降速率上限，返回变化量。它不包含设备默认参数，不读写状态，也不推进时间。温控设备的协议、温度范围、故障、板占用和观测仍归设备包。
 
 35项相关SDK检查通过，1620组合法输入与原温控公式逐值一致；新增公共入口显式拒绝非有限值、负时间、非正时间常数和非法速率。设备消费者接入留给后续提交，本次不改运行服务或部署JSON/OS解析。来源及边界见 `migration/process-dynamics.json`。
+
+### 通用仿真协议端点（C28i）
+
+`plc_sim.protocol_transport` 提供八字节大端长度的JSON对象帧、仅回环TCP端点和自建POSIX伪终端行端点。TCP错误体由设备包通过 `error_response` 回调提供；未提供时非法请求关闭连接，不包含PRCXI专用字段。模型返回None表示丢回执，已经产生的效果不回滚。PTY只创建新伪终端，不能传入实物设备路径；TCP导入不加载tty/termios。
+
+10项端点检查通过，覆盖分片、超长/非法帧、非有限JSON、无回执、非回环拒绝、PTY越界恢复与关闭；另通过完整plc_sim包名执行无POSIX/设备依赖的TCP交换。测试只创建临时本机端点，不连接现有服务。设备错误格式及原设施消费者后续分别接入。
+
+保留原单次start/close生命周期；不承诺重启、epoch或统一停止屏障。TCP请求线程可在监听器关闭后持续到回调返回/超时，PTY错误仍按原ERR字节形式返回；此迁移不是C25联合生命周期验收。未改JSON或OS解析，来源见 `migration/protocol-transport.json`。
