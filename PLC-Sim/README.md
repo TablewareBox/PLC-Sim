@@ -743,3 +743,11 @@ CLI、GUI默认节点表与握手参数引用PTLC包，GUI留空字段使用包�
 三个操作/身份方法及四个公共符号AST保持；8项模块检查、49项正式原生板CPU消费者检查通过，无跳过。使用新临时数据库及回环HTTP，未连接OS或实物。来源见`migration/reference-operation-gate.json`。
 
 它保留墙钟expires_at、单进程所有权及既有设备派发语义；completed仅是一次模型调用完成，不等于物理动作到位。没有租约TTL、世界重启恢复、多进程互斥、统一时钟或PLC程序资格。`PackageSimulationRuntime`继续负责原握手事件/快照，本模块不把这些记录合并成第二套世界，也不自动接入原协议入口或启动JSON。
+
+### 恢复参考基础工具（C32n）
+
+`plc_sim.fair_lock.FairRLock`提供FIFO交接的可重入上下文管理器，避免时钟线程不断抢先于已排队请求。它仅用于单进程短临界区，不是可替换全部threading.RLock API的实现，没有deadline、跨进程锁或持久执行权。
+
+`plc_sim.durable_state_codec.encode/decode`将有限可信Python数据编码为JSON兼容表示，保留整数键、tuple/set、随机数状态等类型；拒绝非有限数、未知类型/标签、重复字典键。集合元素须可排序；不保证所有畸形输入都归一成ValueError，也不限制嵌套深度。它不读取文件，不还原设备对象，不推进世界，不处理schema升级。
+
+三个固定板恢复/几何/撤权来源的这两段实现一致：锁逐字提取，encode/decode函数AST保持。7项原锁回归和12项编码检查通过，完整包名导入未加载OS/设备包。设备状态capture/restore及模型身份应由设备包维护，调用方负责锁、事务和恢复失败处置，本次没有自动接入现有设施。来源见`migration/recovery-primitives.json`；未更改部署JSON、顶层simulation、OS或服务。

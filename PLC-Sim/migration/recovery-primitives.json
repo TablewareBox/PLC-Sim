@@ -1,0 +1,45 @@
+{
+  "stage": "C32n",
+  "source_commit": "a6fbdc3003aefa194ccd2ad1c6469485454ebba9",
+  "source_checkout": "work/plate-recovery-dev-20260922/testbed",
+  "sources": {
+    "plate-recovery": {
+      "fair_lock.py": "1c4cad8d9f89e9ab606bdddad03ce1d8d125976629ba8454a41fa866abd5707e",
+      "persistence.py": "0dc1f99218a60181d1ae6f3c1d810b6aea8cd5d3812b1355affaf5e10c913929"
+    },
+    "plate-geometry": {
+      "fair_lock.py": "1c4cad8d9f89e9ab606bdddad03ce1d8d125976629ba8454a41fa866abd5707e",
+      "persistence.py": "0dc1f99218a60181d1ae6f3c1d810b6aea8cd5d3812b1355affaf5e10c913929"
+    },
+    "plate-authority": {
+      "fair_lock.py": "1c4cad8d9f89e9ab606bdddad03ce1d8d125976629ba8454a41fa866abd5707e",
+      "persistence.py": "0dc1f99218a60181d1ae6f3c1d810b6aea8cd5d3812b1355affaf5e10c913929"
+    }
+  },
+  "equivalence": {
+    "fair_lock.py": "byte_identical",
+    "durable_state_codec.py": "encode/decode AST identical",
+    "tests/test_fair_lock.py": "only formal import changed"
+  },
+  "destination_sha256": {
+    "fair_lock.py": "1c4cad8d9f89e9ab606bdddad03ce1d8d125976629ba8454a41fa866abd5707e",
+    "durable_state_codec.py": "925be70c5239766a6ed8008d8382691869c86b236c673888d0d6a9f51e495222",
+    "tests/test_fair_lock.py": "9e3ffd6f53d2d040be42ce8e06ffe7c8651ed5625727fb97e1e4352f78ca4ac0",
+    "tests/test_durable_state_codec.py": "e7669cd4fc117f8005da42ff61656c2ca79a1ff24e2793e4afd9059bad00e82a"
+  },
+  "validation": {
+    "passed": 19,
+    "original_lock_checks": 7,
+    "codec_checks": 12,
+    "full_package_import": true,
+    "device_dependency_isolation": true,
+    "evidence": "/home/tyzuo/labos-reorg-20260927/c32-recovery-primitives-xld0dadi"
+  },
+  "limits": [
+    "锁仅提供单进程上下文管理器，不提供deadline/跨进程持久执行权。",
+    "编码仅用于可信有限Python数据，非任意JSON安全解析或schema校验。",
+    "集合必须可排序；畸形成员可能抛TypeError等原生异常。",
+    "没有迁入设备capture/restore/model_identity或接入运行环境。",
+    "现有OS、部署JSON和simulation解析不变。"
+  ]
+}
