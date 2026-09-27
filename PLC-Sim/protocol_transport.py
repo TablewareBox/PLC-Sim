@@ -191,3 +191,21 @@ class PTYEndpoint:
 
     def __exit__(self, *_):
         self.close()
+
+
+def unix_json_call(path, payload, timeout=900):
+    raw = json.dumps(payload, allow_nan=False).encode() + b'\n'
+    if len(raw) > 65536:
+        raise ValueError('request_too_large')
+    with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
+        client.settimeout(timeout)
+        client.connect(str(path))
+        client.sendall(raw)
+        with client.makefile('rb') as stream:
+            response = stream.readline(1048577)
+    if len(response) > 1048576 or not response.endswith(b'\n'):
+        raise ValueError('incomplete_response')
+    value = json.loads(response)
+    if 'error' in value:
+        raise RuntimeError(value['error'])
+    return value

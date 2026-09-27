@@ -1,0 +1,23 @@
+{
+  "schema": "unilab.unix-json-client-migration/v1",
+  "source_commit": "8db7ddd31a484a5227e749eb37181b266f48f201",
+  "source": "work/unilabos-lingbot-skill-20260923/core.py",
+  "source_sha256": "f780db9a19d2756c04b30abe01fe9eb4d3c1e49111c0556ce9465d651f865568",
+  "destination": "PLC-Sim/protocol_transport.py",
+  "destination_sha256": "4d2c3e1708f08dafb444a48e09553789858376db956f8e60a0e44432ad32a9d1",
+  "function_ast_unchanged_except_name": true,
+  "validation": {
+    "transport_checks_passed": 19,
+    "full_package_import_verified": true,
+    "no_existing_socket_accessed": true
+  },
+  "limitations": [
+    "explicit caller supplied Unix socket; trusted local peer, no authentication or owner check",
+    "one newline JSON request <=65536 bytes; one newline response <=1048576 bytes",
+    "original json.loads response semantics preserved, including nonfinite response acceptance",
+    "socket timeout applies per operation, not an end-to-end execution deadline",
+    "no automatic retries; transport failure after send cannot establish remote outcome",
+    "no server, world, clock or task/device semantics created"
+  ],
+  "evidence_directory": "/home/tyzuo/labos-reorg-20260927/c32-unix-json-transport-puavb76s"
+}
