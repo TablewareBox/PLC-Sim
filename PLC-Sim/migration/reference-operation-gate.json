@@ -1,0 +1,42 @@
+{
+  "schema": "plc-sim.reference-operation-gate-migration/v1",
+  "source_repository": "work/native-experiment-dev-20260922/testbed",
+  "source_commit": "62eb9e182aa8bfaf13c76c71961379d9b1643fde",
+  "source": "packages/labos_native_plate/environment.py",
+  "source_sha256": "fef26d83304021c6af44f0028b8ec7abecf944966017e9dc542cd79409103165",
+  "destination": "reference_operation_gate.py",
+  "destination_sha256": "fb2b2518ff3b9ae5b9e2bfe5d7b296974a2f2ff5c41c6b0ac8123ea6d3312959",
+  "preserved_ast": [
+    "canonical",
+    "fingerprint",
+    "identifier",
+    "ContractError",
+    "_auth",
+    "_identity",
+    "execute"
+  ],
+  "adaptations": [
+    "device/action allowlist supplied by caller, copied to immutable tuples",
+    "fresh lease/operation tables initialized inside gate on caller-owned connection",
+    "claim and validation reject a closed gate before touching database; closes safely before connection disposal",
+    "shared lock coordinates claim/execute with caller-owned lifecycle; checkpoint remains in same database transaction"
+  ],
+  "validation": {
+    "isolated_gate_checks": 8,
+    "formal_native_plate_consumer_checks": 49,
+    "failures": 0,
+    "skips": 0,
+    "gate_and_facility_no_live_os": true
+  },
+  "scope": "reference CPU dispatch authorization and idempotency only; no PLC scan, new clock/world or OS scheduling",
+  "limitations": [
+    "single process and caller-owned open SQLite connection; facility closure must hold gate.lock",
+    "expires_at remains wall-clock based, not unified simulation epoch/time",
+    "dispatch receipt completed is not proof of physical motion completion",
+    "after-checkpoint failure propagates and leaves durable in_progress; repeat returns unknown, no physical replay",
+    "no crash/world recovery, lease TTL, persistent worker restart, multi-process dispatch or hardware qualification",
+    "request identities are caller-supplied; payload_sha256 is shape-checked, provenance is verified separately by OS/evaluator",
+    "PackageSimulationRuntime remains unchanged; stages/snapshots are not mapped to this independent request ledger"
+  ],
+  "evidence_directory": "/home/tyzuo/labos-reorg-20260927/c32-operation-gate-btefs_nl"
+}

@@ -731,3 +731,15 @@ CLI、GUI默认节点表与握手参数引用PTLC包，GUI留空字段使用包�
 `plc_sim.protocol_transport.unix_json_call(path, payload, timeout=900)`从固定技能的旧rpc提取，除函数名称外AST保持。调用方显式提供可信本机Unix socket；一个连接发送一行JSON（含换行最多65536字节），读取首行JSON（含换行最多1048576字节），原error字段转为RuntimeError。它不创建服务、世界、设备身份或时钟。
 
 19项传输检查及完整包名导入通过，只使用自建临时端点。请求禁止非有限数；响应保持旧json.loads语义，尚未采用TCP严格对象/有限数解析。超时为socket操作超时，不是整次动作期限；发送后的断连/超时效果未知，不自动重试。路径身份和服务可信性由调用者保证，不构成认证或安全边界。现有协议、服务、OS和启动JSON未改。迁移记录见 `migration/unix-json-client.json`。
+
+### CPU参考操作门控（C32j）
+
+`reference_operation_gate.ReferenceOperationGate(facility, db, dispatcher_token, world_id, device_actions, checkpoint)`接收已有设施、新SQLite连接、显式动作白名单和同库checkpoint回调。对外使用`claim`、`execute`、`close`；生命周期调用方须持有`gate.lock`，先关闭门控再停止设施并关闭数据库。它不创建连接、世界、时钟、网络、设备模型或OS任务。
+
+`facility`提供`world.lock`、`devices`、`dispatch(request)`以及`clock_error`；dispatch返回既有`ok/result/error`合同。checkpoint在同一事务和world锁内执行，不得独立commit、另开连接或重复派发。新连接不得有leases/operations表，不接管已有数据库的恢复。设备包提供动作白名单/设备实现，Testbed仅组合参考宿主和采集证据。
+
+并发相同请求只派发一次；更改参数/身份会拒绝，旧执行者与过期请求不能绕过校验重读结果。派发异常保留unknown并关闭后续派发；after-checkpoint失败仍抛原异常、记录保持in_progress，重复请求返回unknown且不重放。关闭门控后claim/execute在访问数据库前失败，即使调用方已经关闭连接。
+
+三个操作/身份方法及四个公共符号AST保持；8项模块检查、49项正式原生板CPU消费者检查通过，无跳过。使用新临时数据库及回环HTTP，未连接OS或实物。来源见`migration/reference-operation-gate.json`。
+
+它保留墙钟expires_at、单进程所有权及既有设备派发语义；completed仅是一次模型调用完成，不等于物理动作到位。没有租约TTL、世界重启恢复、多进程互斥、统一时钟或PLC程序资格。`PackageSimulationRuntime`继续负责原握手事件/快照，本模块不把这些记录合并成第二套世界，也不自动接入原协议入口或启动JSON。
