@@ -92,6 +92,16 @@ def test_ptlc_contract_uses_exact_device_package_types():
     from eit_ptlc.simulation import plc_sensors as sensors
     assert ptlc_sensors.PtlcSensorEngine is sensors.PtlcSensorEngine
     assert ptlc_sensors.SensorTransition is sensors.SensorTransition
+    import ptlc_plant
+    import ptlc_runtime
+    from eit_ptlc.simulation import plc_plant as plant, plc_runtime as runtime
+    assert ptlc_plant.PtlcPlant is plant.PtlcPlant
+    assert ptlc_plant.PlantAction is plant.PlantAction
+    for name in ("STATIONS", "INPUT_FIELDS", "OUTPUT_DEFAULTS", "TERMINAL_STATES",
+                 "MODELED_ACTIONS", "INSTANT_ACTIONS", "VariableAdapter",
+                 "HandshakeEvent", "MotionSegment", "ActionCycle", "DeployCycle", "RuntimeFaults"):
+        assert getattr(ptlc_runtime, name) is getattr(runtime, name)
+    assert ptlc_runtime.OpcUaVariableAdapter.__module__ == "ptlc_runtime"
 
 
 @pytest.mark.parametrize("module,expected", [("server", 0), ("ptlc_behavior", 1)])

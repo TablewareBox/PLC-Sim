@@ -679,3 +679,7 @@ plc-sim szlab-handshake list
 ### C22b 传感器定义消费
 
 `ptlc_sensors` 仅保留兼容导入，输入位、站点、气缸延迟与外部事件模型唯一实现已归 `eit_ptlc.simulation.plc_sensors`；106项既有契约/plant/传感器/握手及依赖加载检查通过。模型未改变，逻辑延迟反馈不冒充Isaac物理采样。来源与证据见 `migration/ptlc-sensor-consumer.json`。
+
+### C22c Plant 与领域状态消费
+
+`ptlc_plant` 与 `ptlc_runtime` 的领域名称指向PTLC设备包同一对象，55动作规则和状态定义不再在PLC-Sim重复维护。OPC UA适配器留在本仓，类实现AST与原版一致；106项契约、plant、传感器、握手和依赖隔离检查通过。只调整实现归属和导入，不改变启动JSON、行为、应用或服务。原延迟/插值与取消边界不变，来源见 `migration/ptlc-plant-consumer.json`。

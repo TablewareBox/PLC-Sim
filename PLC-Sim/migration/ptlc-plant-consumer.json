@@ -1,0 +1,27 @@
+{
+  "schema": "lab.ptlc-plant-consumer/v1",
+  "device_commit": "4260b018d49c5e30a1da5982caad0ad8d6aa343a",
+  "entries": [
+    "eit_ptlc.simulation.plc_plant",
+    "eit_ptlc.simulation.plc_runtime"
+  ],
+  "consumers": {
+    "ptlc_plant.py": "350a6f49ac7a3fbece12bcaccd621c05a02fa555b2600acb65c8e6f94bed3486",
+    "ptlc_runtime.py": "54daef9ca75e58313ffc750aa1c2b72557b7de5d5d59b8454fc1536edd69b62a"
+  },
+  "opc_adapter_ast_identical": true,
+  "tests": {
+    "tests": 106,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "evidence_directory": "/home/tyzuo/labos-reorg-20260927/c22-ptlc-plant-21vy0re7",
+  "evidence": {
+    "consumer.json": "78fc550c3c09ea659a3bf0239449fba6e1b96c953346ef5643835a42b1f1901e",
+    "consumer.xml": "c9fc7a308f0e622977f78248b17a4d919a16958f235dde3567097dd8383ef2db"
+  },
+  "runtime_behavior_changed": false,
+  "startup_json_changed": false,
+  "new_isaac_run": false
+}
