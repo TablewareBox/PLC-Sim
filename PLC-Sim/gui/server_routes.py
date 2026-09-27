@@ -27,6 +27,7 @@ try:
         default_csv_path,
         load_csvs,
         load_ptlc_nodes,
+        default_ptlc_nodes_path,
         node_defs_fingerprint,
         runtime_data_dir,
     )
@@ -39,6 +40,7 @@ except ImportError:  # Source checkout: ``import gui.backend``.
         default_csv_path,
         load_csvs,
         load_ptlc_nodes,
+        default_ptlc_nodes_path,
         node_defs_fingerprint,
         runtime_data_dir,
     )
@@ -180,11 +182,6 @@ class ServerStartReq(BaseModel):
 def _resolve_server_node_paths(req: ServerStartReq, profile: str) -> list[Path]:
     """解析并去重节点表路径；CSV profile 可合并多份，PTLC 只允许一份。"""
 
-    default_path = (
-        ROOT / "config" / "ptlc_nodes.yaml"
-        if profile == "ptlc"
-        else Path(STATE.last_extract_csv or default_csv_path())
-    )
     if req.csvs is not None:
         requested = [str(item).strip() for item in req.csvs]
         if not requested or any(not item for item in requested):
@@ -194,6 +191,11 @@ def _resolve_server_node_paths(req: ServerStartReq, profile: str) -> list[Path]:
         if not requested[0]:
             raise HTTPException(400, "节点表路径不能为空")
     else:
+        default_path = (
+            default_ptlc_nodes_path()
+            if profile == "ptlc"
+            else Path(STATE.last_extract_csv or default_csv_path())
+        )
         requested = [str(default_path)]
 
     resolved: list[Path] = []

@@ -18,6 +18,7 @@ dependencies = [
 
 [project.optional-dependencies]
 szlab = ["szlab-poly-studio>=0.1.0"]
+ptlc = ["eit_ptlc>=0.1.0"]
 test = [
   "pytest>=8.0",
   "build>=1.2,<2",

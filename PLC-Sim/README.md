@@ -15,7 +15,7 @@
 见 [产品使用说明书](./docs/product_manual/source/index.md)。本目录
 [使用说明.md](./使用说明.md) 只保留手册入口。
 
-核心 OPC UA 仿真不依赖其他仓库。InoProShop 工程操作属于可选功能，需要使用者
+通用CSV OPC UA服务不依赖设备仓；PTLC和SZLab模型分别需要所选设备包。InoProShop 工程操作属于可选功能，需要使用者
 自行安装 InoProShop、Node.js，并提供有权使用的 MCP bundle。
 
 ## 命名约定
@@ -95,7 +95,7 @@ plc-sim server --host 127.0.0.1 --port 4855
 plc-sim handshake --url opc.tcp://127.0.0.1:4855/xuse_sim/
 plc-sim szlab-handshake --time-scale 10
 plc-sim server --profile ptlc
-plc-sim ptlc-handshake --config config/ptlc_handshake.yaml
+plc-sim ptlc-handshake
 ```
 
 如果系统没有将 Python Scripts 目录加入 `PATH`，可以等价运行：
@@ -278,30 +278,30 @@ OS Backend 是工作流、资源锁和跨设备协调的唯一真源；PLC-SIM �
 当前能力边界、剩余差距和建设优先级见
 [PTLC PLC 仿真能力评估](../docs/ptlc-plc-simulation-gap-assessment.md)。
 
-PTLC L2行为契约现在通过 `eit_ptlc.simulation.plc_behavior` 读取所选PTLC设备包的既有规格。运行PTLC代理须让该包可导入；缺少时明确失败，不回退内置模型。通用CSV服务仍可独立导入，原应用和PLC工程不会被装配。节点表和旧显式行为快照暂保留兼容，后续继续逐项归包：
+PTLC模型、节点表、写入归属和默认仿真参数由 `eit_ptlc.simulation` 提供，PLC-Sim维护协议转换、端点和扫描入口。运行PTLC须让所选设备包可导入；缺少时明确失败，不回退内置模型。通用CSV服务仍可独立导入，原应用和PLC工程不会被装配。以下命令默认使用设备包；旧 `--csv config/ptlc_nodes.yaml` 和 `--config config/ptlc_handshake.yaml` 仍可显式选择历史快照：
 
 ```bash
-plc-sim server --profile ptlc --csv config/ptlc_nodes.yaml
-plc-sim ptlc-handshake --config config/ptlc_handshake.yaml
+plc-sim server --profile ptlc
+plc-sim ptlc-handshake
 ```
 
 Server 会创建
 `Objects/DeviceSet/Inovance-ARM-Linux/Resources/Application/GlobalVars/Host_Computer`
 嵌套 GVL，支持 Boolean、Byte、Int16、Int32、Float、Double、String 以及固定长度真数组。
 代理响应 Sampling、Collect、Develop、PhotoScrape、FeedLift、Pump、Rail、StagingA
-八个统一 L2 通道。`config/ptlc_behavior/` 固化各工位合法动作码、步序、错误码、
+八个统一 L2 通道。包内 `eit_ptlc/mock/behavior/specs/` 提供各工位合法动作码、步序、错误码、
 门禁、计时常量和原始注记；未知动作按对应派发器错误码 REJECTED，不再默认成功。
 代理提供完整 `PLC_Deploy_*` PREPARING/SAFE/COMMITTED 状态机、动作级连续轴位置、
 FeedLift 板堆/搜索、地轨数组索引、Develop 排液与抽吸、Collect 瓶互锁和多轮排液、
 Sampling 泵行程门、PhotoScrape 对位安全门、延迟气缸到位反馈、PLC 输入字节合成及
-确定性事件快照。执行器命令与传感器反馈使用不同的时钟：命令可立即写出，到位输入按
-`plant.cylinder_s` 延迟变化；IX8..IX12 始终由当前物理事实重新合成。
+确定性事件快照。执行器命令与传感器反馈使用同一调用时刻下的不同生效时间：命令可立即写出，到位输入按
+`plant.cylinder_s` 延迟变化；IX8..IX12 由当前逻辑模型或外部事件合成，尚不是Isaac读回。
 八个 dispatcher 的 **55 个合法 PLC 动作全部建模**；合法动作会完成，或按行为规格进入
 确定性 REJECTED/ERROR，不再以 `unmodeled` 无限等待。可用
 `plc-sim ptlc-handshake list` 查看 55/55 覆盖率。代理重启会锁存现有 Start 电平并
 保留 L2 序号/终态，避免重放保持为高电平的非幂等请求。
 
-物料传感器支持两种模式，由 `config/ptlc_handshake.yaml` 的
+物料传感器支持两种模式，由设备包 `simulation/profiles/plc_handshake.yaml` 的
 `plant.sensor_mode` 选择：
 
 - `standalone`：默认的一键 PLC 调试模式。Collect A22/A23 会在
@@ -369,7 +369,7 @@ plc-sim ptlc-handshake --time-scale 10 \
 PTLC_REFERENCE_ROOT=/path/to/pTLC_platformUI pytest tests/test_ptlc_contract.py
 ```
 
-刷新节点和八份行为规格快照：
+历史快照生成工具仍保留用于显式兼容输入；默认运行不需要刷新PLC-Sim内副本。若需另行生成冻结快照：
 
 ```bash
 python tools/snapshot_ptlc_profile.py \
@@ -687,3 +687,9 @@ plc-sim szlab-handshake list
 ### C22d 握手响应消费
 
 八工位L2响应、下载准备状态与设备副作用已由 `eit_ptlc.simulation.plc_handshake/plc_deploy/plc_effects` 唯一维护；旧Python入口及CLI分发保留，端点/扫描进程仍由PLC-Sim组织。107项原回归及回环OPC UA检查通过，正式CLI分发列出8工位55动作；初次 `python -m cli` 只导入未执行，已保留无效探针记录并改用实际分发函数。下载握手测试不运行PLC工程，未进行Isaac或现有服务验证。既有配置与启动JSON未改，详见 `migration/ptlc-handshake-consumer.json`。
+
+### C22e 节点表与参数来源收敛
+
+CLI、GUI默认节点表与握手参数引用PTLC包，GUI留空字段使用包默认值；用户显式提供的路径仍按原路径读取。253个节点的全部解析字段、写入归属及配置值与旧快照一致。写入归属的设备规则已归包，普通CSV不加载PTLC包；新增ptlc可选依赖声明，未构建或安装包。
+
+144项相关回归通过，包括原PTLC/回环OPC、默认与显式路径、GUI请求参数、数组写入及CSV隔离；默认CLI输出与原快照输出一致。审查发现并修正机械替换误改线程参数，补测GUI请求到解析器链路；初次143项检查未覆盖该链路，其记录保留。GUI实际页面未启动，服务器既有进程与OS启动JSON未改。来源见 `migration/ptlc-profile-consumer.json`。

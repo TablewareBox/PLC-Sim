@@ -11,19 +11,19 @@ from pathlib import Path
 from typing import Any
 
 try:
-    from .common import load_yaml
+    from .common import load_yaml, default_ptlc_config_path
     from .ptlc_handshake_agent import PtlcHandshakeSimulator
     from .ptlc_runtime import MODELED_ACTIONS, OpcUaVariableAdapter
 except ImportError:  # 兼容从源码目录直接执行。
-    from common import load_yaml
+    from common import load_yaml, default_ptlc_config_path
     from ptlc_handshake_agent import PtlcHandshakeSimulator
     from ptlc_runtime import MODELED_ACTIONS, OpcUaVariableAdapter
 
 
 def _config_path() -> str:
-    """返回随包发布的默认 PTLC 握手配置路径。"""
+    """返回所选PTLC设备包的默认握手配置路径。"""
 
-    return str(Path(__file__).with_name("config") / "ptlc_handshake.yaml")
+    return str(default_ptlc_config_path())
 
 
 def build_parser() -> argparse.ArgumentParser:

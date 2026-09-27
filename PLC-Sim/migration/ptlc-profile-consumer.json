@@ -1,0 +1,32 @@
+{
+  "schema": "lab.ptlc-profile-consumer/v1",
+  "device_commit": "e0c59b652918f72e838e63233c8bc7e5302d5e7d",
+  "consumers": {
+    "common.py": "aeedbb3684a1a12fc062c7855d6eb85f0fb00fc2e8f3b5ed2aa35b6f4f9373c5",
+    "server.py": "bb7f46c23a5eb8cf114b98cd64f97881f102691674939d1d96d165d43903330e",
+    "ptlc_agent_cli.py": "d3598f0cdc61b81209efffedbe6f486dea73ccd7ee03343136ad73902118fd18",
+    "gui/server_routes.py": "0e9069dadf4126335de7cd044396d177ee79dabe66ee8a6e4ed551acbf075f70",
+    "gui/static/simulation.js": "b902ed980768f3dfbd8bed410ce69e9edd29efb4c9d834bea9f5a476e99ce409"
+  },
+  "tests": {
+    "tests": 144,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "node_fields_equal": 253,
+  "default_cli_output_equal": true,
+  "explicit_legacy_paths_preserved": true,
+  "review_fix": "修正机械替换误改GUI线程参数；初次143项未覆盖该调用，新增请求到解析器用例后144项通过",
+  "evidence_directory": "/home/tyzuo/labos-reorg-20260927/c22-ptlc-profile-w3p8q29y",
+  "evidence": {
+    "consumer.json": "ec6df73d623acefa2ce776a951d74df8945b9de1a626a7340f84e9ec9626dcaf",
+    "consumer.xml": "7727677912e1963a76a1c3b0daf55b10facc7ac2dd5029419793a828db670ab2",
+    "consumer-final.json": "f323055591b235edcd171977140b6d25bef0a1da58cabd2926a332343a88d705",
+    "consumer-final.xml": "30c622d879f7029cebb675a3f04b9c702935bb545ee6cbcec320fcd837913340",
+    "cli-default.json": "8dd849e46ef991458ceb24903a477fa9baccd2a368f50da87ffebbd9b7df7a6f"
+  },
+  "gui_page_run": false,
+  "build_performed": false,
+  "startup_json_changed": false
+}

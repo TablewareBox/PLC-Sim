@@ -38,6 +38,7 @@ try:
         default_csv_path,
         load_csvs,
         load_ptlc_nodes,
+        default_ptlc_nodes_path,
         setup_logging,
     )
 except ImportError:  # Direct `python server.py` compatibility.
@@ -50,6 +51,7 @@ except ImportError:  # Direct `python server.py` compatibility.
         default_csv_path,
         load_csvs,
         load_ptlc_nodes,
+        default_ptlc_nodes_path,
         setup_logging,
     )
 
@@ -257,8 +259,7 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.profile == "ptlc":
-        default_ptlc = Path(__file__).with_name("config") / "ptlc_nodes.yaml"
-        profile_paths = [Path(p).resolve() for p in (args.csv or [str(default_ptlc)])]
+        profile_paths = [Path(p).resolve() for p in (args.csv or [str(default_ptlc_nodes_path())])]
     else:
         profile_paths = [Path(p).resolve() for p in (args.csv or [default_csv])]
     for cp in profile_paths:

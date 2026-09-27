@@ -248,10 +248,10 @@ def load_csv(path: Path) -> List[NodeDef]:
 
 
 def load_ptlc_nodes(path: Path, ns_index: int = 4) -> List[NodeDef]:
-    """读取自包含的 PTLC ``plc_nodes.yaml`` 协议快照。
+    """读取 PTLC ``plc_nodes.yaml`` 节点表或显式旧快照。
 
-    文件格式与 PTLC V2 的节点表兼容，但 PLC-Sim 只消费 ``gvl_path``、
-    ``nodes.*.type`` 和 ``array_len``，因此运行时无需安装或导入 PTLC。
+    节点解析和OPC类型转换留在PLC-Sim；未显式声明write_owner时，
+    从所选PTLC设备包加载写入归属规则，不搜索历史快照或其他工作区。
     """
     if yaml is None:
         raise RuntimeError("PTLC profile 需要 PyYAML")
@@ -292,47 +292,28 @@ def load_ptlc_nodes(path: Path, ns_index: int = 4) -> List[NodeDef]:
     return result
 
 
-_PTLC_L2_HOST_FIELDS = frozenset({"ActionCode", "RequestSeq", "Start", "Reset"})
-_PTLC_L2_PLC_FIELDS = frozenset({
-    "State", "ActiveCode", "AcceptedSeq", "CompletedSeq", "Step",
-    "ErrorCode", "SafeState", "Retryable",
-})
+def _ptlc_profile_module() -> Any:
+    """仅选择PTLC时加载包定义，普通CSV路径不依赖设备包。"""
+    try:
+        from .model_loading import load_module
+    except ImportError:  # 兼容源码目录命令行。
+        from model_loading import load_module
+    return load_module("eit_ptlc.simulation.plc_profile")
+
+
+def default_ptlc_nodes_path() -> Path:
+    """获取所选PTLC设备包已有节点表。"""
+    return _ptlc_profile_module().default_nodes_path()
+
+
+def default_ptlc_config_path() -> Path:
+    """获取所选PTLC设备包的独立PLC仿真默认参数。"""
+    return _ptlc_profile_module().default_config_path()
 
 
 def _infer_ptlc_write_owner(name: str, comment: str) -> str:
-    """从 PTLC 稳定命名/注释推导 GUI 写所有权。
-
-    未明确归属的变量保留 ``maintenance``，避免把历史调试量误判为业务输入；
-    CSV/SZLab 路径不调用本函数，继续维持原来的完全可写行为。
-    """
-    l2_match = re.match(
-        r"^(Sampling|Collect|Develop|PhotoScrape|FeedLift|Pump|Rail|StagingA)_L2_(.+)$",
-        name,
-    )
-    if l2_match:
-        field = l2_match.group(2)
-        if field in _PTLC_L2_HOST_FIELDS:
-            return "host"
-        if field in _PTLC_L2_PLC_FIELDS:
-            return "plc"
-    if name in {
-        "PLC_Deploy_RequestSeq", "PLC_Deploy_CommitSeq",
-        "PLC_Deploy_Start", "PLC_Deploy_Reset",
-    }:
-        return "host"
-    if name in {
-        "PLC_Deploy_State", "PLC_Deploy_AcceptedSeq", "PLC_Deploy_ErrorCode",
-        "PLC_Startup_State", "PLC_Startup_ErrorCode", "PLC_Ready",
-        "PLC_Startup_AlarmInhibit", "PLC_HandWheel_Active",
-        "PLC_Axis_CommOperational", "PLC_Axis_FaultSource", "PLC_Axis_FaultCode",
-    }:
-        return "plc"
-    normalized = comment.replace("：", ":").replace("仅 ", "仅")
-    if re.search(r"(?:仅)?(?:PC|PC/HMI|上位机|请求方)\s*写", normalized, re.I):
-        return "host"
-    if re.search(r"(?:仅)?PLC\s*写", normalized, re.I):
-        return "plc"
-    return "maintenance"
+    """兼容历史解析入口；领域规则由PTLC设备包维护。"""
+    return _ptlc_profile_module().infer_write_owner(name, comment)
 
 
 def load_csvs(csv_paths: List[Path]) -> List[NodeDef]:

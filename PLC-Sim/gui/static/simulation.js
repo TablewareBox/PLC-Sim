@@ -8,8 +8,9 @@ function syncServerProfile() {
   $("simCsvFile").closest("label").classList.toggle("hidden", ptlc);
   $("simOcc").closest("label").classList.toggle("hidden", ptlc);
   $("simCsv").value = ptlc
-    ? "config/ptlc_nodes.yaml"
+    ? ""
     : "data/szlab_plc_0810.csv";
+  $("simCsv").placeholder = ptlc ? "留空使用PTLC设备包节点表" : "变量CSV路径";
 }
 $("simProfile").onchange = syncServerProfile;
 syncServerProfile();
@@ -278,8 +279,9 @@ $("agentWorkflow").onchange = syncSzlabAgentOptions;
 $("agentProfile").onchange = () => {
   const ptlc = $("agentProfile").value === "ptlc";
   $("agentCfg").value = ptlc
-    ? "config/ptlc_handshake.yaml"
+    ? ""
     : "config/szlab_handshake.yaml";
+  $("agentCfg").placeholder = ptlc ? "留空使用PTLC设备包默认参数" : "握手配置路径";
   syncSzlabAgentOptions();
 };
 syncSzlabAgentOptions();

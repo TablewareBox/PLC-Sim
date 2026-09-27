@@ -244,8 +244,10 @@ def test_ptlc_profiles_are_selectable_in_gui() -> None:
         for filename in ("app.js", "simulation.js", "variables.js")
     )
     assert html.count('<option value="ptlc">') == 2
-    assert "config/ptlc_nodes.yaml" in app_js
-    assert "config/ptlc_handshake.yaml" in app_js
+    assert "留空使用PTLC设备包节点表" in app_js
+    assert "config/ptlc_nodes.yaml" not in app_js
+    assert "留空使用PTLC设备包默认参数" in app_js
+    assert "config/ptlc_handshake.yaml" not in app_js
     assert "requireBackendCapability" in app_js
     assert "data-element-index" in app_js
     assert "element_value" in app_js
