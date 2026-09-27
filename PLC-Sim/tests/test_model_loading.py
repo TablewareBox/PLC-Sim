@@ -102,6 +102,13 @@ def test_ptlc_contract_uses_exact_device_package_types():
                  "HandshakeEvent", "MotionSegment", "ActionCycle", "DeployCycle", "RuntimeFaults"):
         assert getattr(ptlc_runtime, name) is getattr(runtime, name)
     assert ptlc_runtime.OpcUaVariableAdapter.__module__ == "ptlc_runtime"
+    import ptlc_handshake_agent, ptlc_deploy, ptlc_effects
+    from eit_ptlc.simulation import plc_handshake, plc_deploy, plc_effects
+    assert ptlc_handshake_agent.PtlcHandshakeSimulator is plc_handshake.PtlcHandshakeSimulator
+    assert ptlc_handshake_agent.OpcUaVariableAdapter is ptlc_runtime.OpcUaVariableAdapter
+    assert ptlc_deploy.step_deploy is plc_deploy.step_deploy
+    for name in ("all_effects", "apply_effect", "apply_process_effects", "effect_names", "effects_for", "fault_codes"):
+        assert getattr(ptlc_effects, name) is getattr(plc_effects, name)
 
 
 @pytest.mark.parametrize("module,expected", [("server", 0), ("ptlc_behavior", 1)])

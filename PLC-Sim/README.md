@@ -683,3 +683,7 @@ plc-sim szlab-handshake list
 ### C22c Plant 与领域状态消费
 
 `ptlc_plant` 与 `ptlc_runtime` 的领域名称指向PTLC设备包同一对象，55动作规则和状态定义不再在PLC-Sim重复维护。OPC UA适配器留在本仓，类实现AST与原版一致；106项契约、plant、传感器、握手和依赖隔离检查通过。只调整实现归属和导入，不改变启动JSON、行为、应用或服务。原延迟/插值与取消边界不变，来源见 `migration/ptlc-plant-consumer.json`。
+
+### C22d 握手响应消费
+
+八工位L2响应、下载准备状态与设备副作用已由 `eit_ptlc.simulation.plc_handshake/plc_deploy/plc_effects` 唯一维护；旧Python入口及CLI分发保留，端点/扫描进程仍由PLC-Sim组织。107项原回归及回环OPC UA检查通过，正式CLI分发列出8工位55动作；初次 `python -m cli` 只导入未执行，已保留无效探针记录并改用实际分发函数。下载握手测试不运行PLC工程，未进行Isaac或现有服务验证。既有配置与启动JSON未改，详见 `migration/ptlc-handshake-consumer.json`。

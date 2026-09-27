@@ -1,0 +1,35 @@
+{
+  "schema": "lab.ptlc-handshake-consumer/v1",
+  "device_commit": "a93c361a873ce05eaffb5c29473afcb6001cf6e9",
+  "consumers": {
+    "ptlc_handshake_agent.py": "abb794d89af21efc8b45f3e0a4dcf5583f4fddec901bad2308b0dc070e692ffc",
+    "ptlc_deploy.py": "2f90c9e6087f693964548db5c5f6cb624ac0e2fe9c49dfb7556159904f859ec7",
+    "ptlc_effects.py": "70b548ae0438b5473ac83c013faa62f88df89ecac20cca9a1c442ab7fae748de"
+  },
+  "tests": {
+    "tests": 107,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "opcua_endpoint": "127.0.0.1动态临时端口，仅模拟服务，finally关闭",
+  "cli": {
+    "legacy_help": true,
+    "dispatcher_list": true,
+    "stations": 8,
+    "actions": 55,
+    "nodes": 179,
+    "initial_module_probe": "python -m cli只导入模块，未计作通过"
+  },
+  "evidence_directory": "/home/tyzuo/labos-reorg-20260927/c22-ptlc-handshake-5w48fra8",
+  "evidence": {
+    "consumer.json": "44fa6eebe93ab6eb17cb7002b8ac1f61c86d6c4c9603d9eaafdbfa94e9172b67",
+    "consumer.xml": "238695a4b5192c21f4288771355833a8fc85bd163d9d478dcf1cdfe6e7501138",
+    "legacy-help.json": "cfc6419a1961bd5d2ecec521c68075614d798052a1d76ad633430f561a3e8467",
+    "cli-list.json": "5771e20beeabeaafd963e903993ea3268b9b4ba017a9d20217f9cb7778ae7af8",
+    "cli-list-final.json": "7f49e0defa2be5dfbd40668ffaec8f2511ae513accdb5c828bff942f19f1b7ba"
+  },
+  "plc_program_run": false,
+  "isaac_run": false,
+  "startup_json_changed": false
+}
