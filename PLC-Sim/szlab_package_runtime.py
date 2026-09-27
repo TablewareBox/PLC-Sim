@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+import json
+from importlib.resources import files
+from importlib.resources.abc import Traversable
 from pathlib import Path
-from typing import Any
 
 try:
+    from .model_loading import load_module, load_symbol
     from .common import load_yaml
     from .package_simulation import (
         BehaviorCoverage,
@@ -15,6 +17,7 @@ try:
         WorldState,
     )
 except ImportError:  # Direct source-checkout imports.
+    from model_loading import load_module, load_symbol
     from common import load_yaml
     from package_simulation import (
         BehaviorCoverage,
@@ -23,10 +26,13 @@ except ImportError:  # Direct source-checkout imports.
         WorldState,
     )
 
-PACKAGE_ID = "community.szlab_poly_studio"
-EXPECTED_REAL_DEVICE_COUNT = 9
-EXPECTED_REAL_ACTION_COUNT = 105
-EXPECTED_WORKFLOW_COUNT = 19
+_definition_package = load_module("szlab_poly_studio.simulation")
+_observer_class = load_symbol("szlab_poly_studio.simulation.protocol_observer:SzlabProtocolObserver")
+_legacy_behavior = json.loads(files(_definition_package).joinpath("contracts/legacy_behavior.json").read_text())
+PACKAGE_ID = _legacy_behavior["package_id"]
+EXPECTED_REAL_DEVICE_COUNT = _legacy_behavior["catalog_summary"]["real_devices"]
+EXPECTED_REAL_ACTION_COUNT = _legacy_behavior["catalog_summary"]["real_actions"]
+EXPECTED_WORKFLOW_COUNT = _legacy_behavior["catalog_summary"]["workflows"]
 
 
 def default_package_config_path() -> Path:
@@ -35,16 +41,16 @@ def default_package_config_path() -> Path:
     return Path(__file__).resolve().with_name("config") / "szlab_package.yaml"
 
 
-def default_behavior_path() -> Path:
-    """返回随 PLC-SIM 发布的 SZLab 行为覆盖快照。"""
+def default_behavior_path() -> Traversable:
+    """返回设备包提供的历史兼容动作分类资源。"""
 
-    return Path(__file__).resolve().with_name("config") / "szlab_behavior.yaml"
+    return files(_definition_package).joinpath("contracts/legacy_behavior.json")
 
 
 def load_szlab_coverage(path: str | Path | None = None) -> BehaviorCoverage:
     """加载并校验真实设备动作覆盖快照。"""
 
-    payload = load_yaml(str(path or default_behavior_path()))
+    payload = load_yaml(str(path)) if path is not None else json.loads(default_behavior_path().read_text())
     if payload.get("schema") != "unilab.szlab_behavior/v1":
         raise ValueError("SZLab 行为覆盖 schema 不受支持")
     if payload.get("package_id") != PACKAGE_ID:
@@ -81,16 +87,7 @@ def load_szlab_coverage(path: str | Path | None = None) -> BehaviorCoverage:
     return coverage
 
 
-def _device_for_action(action: str) -> str:
-    """从动作全限定名稳定解析设备身份。"""
-
-    name = str(action)
-    if "." not in name:
-        return "szlab_poly_plc"
-    return name.split(".", maxsplit=1)[0]
-
-
-class SzlabPackageRuntime:
+class SzlabPackageRuntime(_observer_class):
     """一次启动常驻全部 SZLab 协议的设备包会话状态面。"""
 
     def __init__(
@@ -125,81 +122,3 @@ class SzlabPackageRuntime:
             coverage=load_szlab_coverage(behavior_path),
             history_limit=int(config.get("history_limit", 500)),
         )
-
-    @property
-    def time_scale(self) -> float:
-        """返回设备包仿真时间倍率。"""
-
-        return self.runtime.clock.rate
-
-    def initialize_protocol(self, values: Mapping[str, Any]) -> None:
-        """记录 OPC UA 初始化投影，不把独立布尔节点提升为物料真源。"""
-
-        for name, value in values.items():
-            if isinstance(value, bool) and (
-                str(name).startswith("传感器状态_") or str(name).endswith("信号")
-            ):
-                self.runtime.world.set_flag(f"opc:{name}", value)
-        self.runtime.world.update_device(
-            "szlab_poly_plc",
-            state="ready",
-            initialized_nodes=len(values),
-        )
-
-    def observe(self, event: Any) -> None:
-        """接收旧协议状态机事件并合并到设备包级运行、物理与审计状态。"""
-
-        action = str(event.action)
-        phase = str(event.phase)
-        detail = dict(event.detail)
-        device_id = _device_for_action(action)
-        if device_id == "szlab_mixer_stirrer" and detail.get("position") is not None:
-            device_id = f"{device_id}:{int(detail['position'])}"
-        self.runtime.record(device_id, action, phase, detail)
-
-        if phase != "completed":
-            return
-        sensor = str(detail.get("sensor") or "")
-        if sensor and bool(detail.get("site_witness_enabled", True)):
-            self.runtime.world.set_flag(f"opc:{sensor}", bool(detail.get("occupied")))
-        if "tool_holding" in detail and bool(detail.get("tool_witness_enabled", True)):
-            self.runtime.world.update_device(
-                "szlab_mixer_robot",
-                tool_holding=bool(detail["tool_holding"]),
-            )
-        self.runtime.world.update_device(
-            device_id,
-            state="await_reset",
-            last_result="SUCCEEDED",
-            last_detail=detail,
-        )
-
-    def observe_external(
-        self,
-        action: str,
-        phase: str,
-        detail: Mapping[str, Any] | None = None,
-    ) -> None:
-        """记录 HTTP 等非 OPC UA Adapter 的设备动作。"""
-
-        fq_action = str(action)
-        if "." not in fq_action:
-            fq_action = f"s1_workstation.{fq_action}"
-        self.runtime.record(
-            _device_for_action(fq_action),
-            fq_action,
-            phase,  # type: ignore[arg-type]
-            detail,
-        )
-
-    def snapshot(self, protocol_snapshot: Mapping[str, Any] | None = None) -> dict[str, Any]:
-        """返回通用会话快照并附加 SZLab 协议周期。"""
-
-        snapshot = self.runtime.snapshot()
-        snapshot["protocol"] = dict(protocol_snapshot or {})
-        return snapshot
-
-    def stop(self) -> None:
-        """停止设备包会话。"""
-
-        self.runtime.stop()

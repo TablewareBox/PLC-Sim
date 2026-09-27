@@ -1,0 +1,96 @@
+{
+  "schema": "plc-sim.device-package-loading/v1",
+  "baseline_commit": "dcbbb9353672f8bdd76b5fa198dced77e9429c0b",
+  "device_package": {
+    "repository": "Uni-Lab-SZLab",
+    "commit": "fd37ec3bf6b983e448f2076b470130f4dfda815b",
+    "distribution": "szlab-poly-studio",
+    "entry_modules": [
+      "szlab_poly_studio.simulation.plc_handshake",
+      "szlab_poly_studio.simulation.s1",
+      "szlab_poly_studio.simulation.protocol_observer"
+    ]
+  },
+  "retained_ast": [
+    "OpcUaVariableAdapter",
+    "_print_catalog",
+    "_print_check",
+    "_event_line",
+    "_config_path",
+    "build_parser",
+    "main"
+  ],
+  "removed_duplicate_behavior": "config/szlab_behavior.yaml; default coverage now reads package contracts/legacy_behavior.json",
+  "validation": {
+    "python": "/home/tyzuo/labos-reorg-20260927/c06-plc-tm1uzzfx/environment/bin/python",
+    "source_environment": {
+      "PYTHONPATH": "<testbed>/repos/Uni-Lab-SZLab",
+      "PATH_prepend": "/home/tyzuo/labos-reorg-20260927/c06-plc-tm1uzzfx/tools",
+      "PTLC_REFERENCE_ROOT": "<testbed>/repos/pTLC_platformUI",
+      "SZLAB_REFERENCE_ROOT": "<testbed>/repos/Uni-Lab-SZLab"
+    },
+    "evidence": "/home/tyzuo/labos-reorg-20260927/c13-loading-e58aoxaf",
+    "runs": {
+      "tests.xml": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "1",
+        "tests": "249",
+        "time": "55.607",
+        "timestamp": "2026-09-27T23:07:46.447070+08:00",
+        "hostname": "ubuntu-SYS-6023H-6023H"
+      },
+      "loading.xml": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "12",
+        "time": "1.106",
+        "timestamp": "2026-09-27T23:08:56.994717+08:00",
+        "hostname": "ubuntu-SYS-6023H-6023H"
+      },
+      "final.xml": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "1",
+        "tests": "73",
+        "time": "2.557",
+        "timestamp": "2026-09-27T23:09:48.169246+08:00",
+        "hostname": "ubuntu-SYS-6023H-6023H"
+      },
+      "resources.xml": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "1",
+        "tests": "22",
+        "time": "1.108",
+        "timestamp": "2026-09-27T23:11:05.656298+08:00",
+        "hostname": "ubuntu-SYS-6023H-6023H"
+      }
+    },
+    "artifacts": {
+      "tests.log": "2cd210d5ec950b5333d9cb0675965cfd064d53e2f845db6fa48ab3d7e7d5ee2a",
+      "tests.xml": "7c46aad01911a6b6d3d23412b98b19b29ee239b38c5af4ccbaef8ade22c2e4de",
+      "loading.log": "934d1de364f1e34b77c56bd207ce78c3a2759c1747d1671de4c673fc4a53feaf",
+      "loading.xml": "0084beb1020d59970ba9a6d27bac1c939ba8da09d7748adf6c8e96bf8d209fd5",
+      "final.log": "94a5c722a7ce080e00ebcaaeb7ec044c161ffe822d8eff3625c8fa29e0f77795",
+      "final.xml": "f148b9f43b2c36190d662a7b305094f449ea39c93136499fb92532c460e79a5d",
+      "resources.log": "159842fd3808a3471e993a9102caa0674844d76d1d5c6a20dfe3ed79ffed569e",
+      "resources.xml": "106c4587b4dfe7e23eaccd27e6bfa318ad201dcaa3550cc588067d0d95a41535",
+      "lint.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "skip": "optional SZLab Catalog compile environment absent",
+    "full_os_ros": "deferred",
+    "isaac": "not_run",
+    "installer": "not_built"
+  },
+  "remaining": [
+    "legacy package/scenario defaults still in compatibility YAML",
+    "graph-driven generic runtime and source ownership enforcement",
+    "physical-feedback completion and authoritative clock"
+  ]
+}

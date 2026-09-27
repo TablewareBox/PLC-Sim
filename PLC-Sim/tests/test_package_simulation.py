@@ -15,7 +15,7 @@ from package_simulation import (
     coverage_from_groups,
     write_snapshot_atomic,
 )
-from szlab_package_runtime import SzlabPackageRuntime, load_szlab_coverage
+from szlab_package_runtime import SzlabPackageRuntime, default_behavior_path, load_szlab_coverage
 
 
 class FakeMonotonic:
@@ -247,7 +247,7 @@ def test_optional_szlab_catalog_has_not_drifted() -> None:
             str(root / "tools" / "snapshot_szlab_profile.py"),
             str(reference),
             "--behavior",
-            str(root / "config" / "szlab_behavior.yaml"),
+            str(default_behavior_path()),
         ],
         check=False,
         capture_output=True,

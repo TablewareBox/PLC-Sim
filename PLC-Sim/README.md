@@ -633,7 +633,7 @@ PLC-Sim/
 ├── package_simulation.py          # 通用设备包会话、时钟、世界状态与事件
 ├── server.py
 ├── szlab_package_runtime.py       # SZLab Catalog 覆盖与协议事件 Adapter
-├── szlab_s1_sim.py                # S1 连续流工作站 HTTP stand-in
+├── szlab_s1_sim.py                # S1 设备包兼容导入入口
 ├── szlab_handshake_agent.py       # SZLab 全设备包 OPC UA 仿真入口
 ├── pyproject.toml                 # unilab-plc-sim wheel 元数据
 ├── requirements.txt
@@ -648,3 +648,20 @@ PLC-Sim/
 - MCP 的在线下载属于非幂等设备操作；GUI 后端当前无条件拒绝，不会因环境变量、
   预检 SHA 或人工二次确认而绕过。真实部署必须由 pTLC `PlcProgramService` 完成
   维护门、目标绑定、一次性授权及 `PLC_Deploy_*` 握手，且不得自动重试。
+
+
+## Testbed 集成：设备包模型加载
+
+SZLab 的 Robot/S04–S09 响应、S1 HTTP 行为和事件投影现在来自同级 `Uni-Lab-SZLab` 的 `szlab_poly_studio.simulation`。旧 `szlab_handshake_agent`、`szlab_s1_sim`、`SzlabPackageRuntime` 名称保留为兼容入口；PLC-Sim 继续提供 OPC UA 连接、扫描组织、共享运行身份与时钟。通用 `model_loading.load_symbol("module:attribute")` 只导入显式选择的入口，不实例化、不搜索 `work/`、不回退到另一份设备模型。
+
+使用 SZLab 前需安装对应驱动包及依赖；根 Testbed 的 gitlink/版本锁约束实际源码组合。Python distribution 的 `szlab` extra 声明依赖，但版本号本身不替代提交锁。源码开发也可将已锁定的 `repos/Uni-Lab-SZLab` 根目录显式加入 PYTHONPATH；PLC-Sim 不自动搜索同级目录。普通 CSV server 与 PTLC 不要求 SZLab 包。缺少包时选择 SZLab 会明确失败，不能启动后默默退回计时替身。
+
+示例（已安装驱动包时）：
+
+```bash
+plc-sim szlab-handshake list
+```
+
+`config/szlab_behavior.yaml` 已移除，历史动作分类由包内 `simulation/contracts/legacy_behavior.json` 提供。该分类仍是冻结的 9 设备/105 动作/19 工作流范围，不代表当前 OS Catalog 已重新编译验收。可选 Catalog 核对会读取真实消费的包内资源。
+
+本次消费者切换不改变旧入口的 `config/szlab_package.yaml` 和 `config/szlab_handshake.yaml` 场景兼容默认；新图驱动的输入、物理反馈完成、统一暂停/重置时钟在后续提交接通。既有打包产物没有重建，新组合的安装包资格尚未授予。模型源码归包后不能继续在 PLC-Sim 中另写 SZLab 工艺分支。
