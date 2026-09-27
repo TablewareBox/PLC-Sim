@@ -1,0 +1,41 @@
+{
+  "schema": "plc_sim.material-state-migration/v1",
+  "source_path": "work/instruments-dev-20260916/packages/labos_instruments/world.py",
+  "source_commit": "0486bd8787a78a1b72ac551c9a424d7f6ea075a4",
+  "source_sha256": "d84ca91f6f6b7fa98ccb4ed55d0948d03dd6a09acdd9ccde7fbc75d665310d4e",
+  "destination": "material_state.py",
+  "destination_sha256": "800cd900e42ad66962360ef8b9b88256332c8f899ca824e65bf69c70441ea5db",
+  "symbols": [
+    "ModelError",
+    "finite",
+    "Liquid",
+    "Sample"
+  ],
+  "ast_equal": true,
+  "comparison": {
+    "checkouts": {
+      "work/instruments-dev-20260916": "0486bd8787a78a1b72ac551c9a424d7f6ea075a4",
+      "work/environment-dev-20260916": "720a8d08c94312b3d69ee390445697c6cb57b9ce",
+      "work/native-experiment-dev-20260922/testbed": "62eb9e182aa8bfaf13c76c71961379d9b1643fde",
+      "work/unilabos-joint-readiness-20260923/testbed": "7e2c7b0bc8756da462609c6ef20ffb9ebd121d92"
+    },
+    "modules_per_checkout": 13,
+    "all_byte_equal": true
+  },
+  "tests": {
+    "independent_material_checks": 12,
+    "historical_model_checks": 95,
+    "deselected_upstream_driver_checks": 2,
+    "import_identity_verified": true,
+    "consumer_view": "external fixture retains original World AST; its four primitives import the new module; devices unchanged",
+    "existing_service_consumer_switched": false
+  },
+  "evidence_directory": "/home/tyzuo/labos-reorg-20260927/c28-material-state-zd12irwd",
+  "constraints": [
+    "no World or scheduler migrated",
+    "no device protocol or scene copied",
+    "no JSON top-level simulation or OS startup edits",
+    "no ROS/GPU/hardware/service/build",
+    "low-level material objects preserve historical validation boundaries"
+  ]
+}
