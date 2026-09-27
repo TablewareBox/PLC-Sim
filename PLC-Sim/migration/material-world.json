@@ -1,0 +1,26 @@
+{
+  "schema": "plc_sim.material-world-migration/v1",
+  "source": "work/instruments-dev-20260916/packages/labos_instruments/world.py",
+  "source_commit": "0486bd8787a78a1b72ac551c9a424d7f6ea075a4",
+  "source_sha256": "d84ca91f6f6b7fa98ccb4ed55d0948d03dd6a09acdd9ccde7fbc75d665310d4e",
+  "destination": "material_world.py",
+  "destination_sha256": "b4177bb8624145183ab811ab4b872719681baf9871b245ac67936b983a026668",
+  "World_ast_equal": true,
+  "material_primitives": "material_state",
+  "tests": {
+    "sdk_checks": 21,
+    "device_model_consumers": 95,
+    "upstream_driver_checks_deselected": 2,
+    "qualified_package_import_verified": true
+  },
+  "evidence_directory": "/home/tyzuo/labos-reorg-20260927/c28-material-world-pftzq9az",
+  "default_run_changed": false,
+  "joint_time_authority_implemented": false,
+  "scene_json_changed": false,
+  "limitations": [
+    "advance(dt) retains old <=0.1s subdivision and callbacks; does not acknowledge physics steps",
+    "one shared instance must be injected; no automatic scene construction or new wall clock",
+    "callback errors retain partial effects; no transaction rollback or epoch fencing",
+    "plate ownership is logical model state, not proof of physical attachment"
+  ]
+}
