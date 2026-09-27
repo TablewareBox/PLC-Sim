@@ -665,3 +665,9 @@ plc-sim szlab-handshake list
 `config/szlab_behavior.yaml` 已移除，历史动作分类由包内 `simulation/contracts/legacy_behavior.json` 提供。该分类仍是冻结的 9 设备/105 动作/19 工作流范围，不代表当前 OS Catalog 已重新编译验收。可选 Catalog 核对会读取真实消费的包内资源。
 
 本次消费者切换不改变旧入口的 `config/szlab_package.yaml` 和 `config/szlab_handshake.yaml` 场景兼容默认；新图驱动的输入、物理反馈完成、统一暂停/重置时钟在后续提交接通。既有打包产物没有重建，新组合的安装包资格尚未授予。模型源码归包后不能继续在 PLC-Sim 中另写 SZLab 工艺分支。
+
+## 通用布尔信号去抖
+
+`plc_sim.signal_conditioning.PhotoelectricSignal` 从已冻结的水合光电实现逐字提取，只接收显式时间和布尔观测，输出value/quality/reason。九个原回归通过，覆盖双沿去抖、抖动、禁用/失效立即unknown、时钟回退与非有限时间；不持有时钟、不执行raycast或写PLC。来源见 `migration/signal-conditioning.json`。
+
+调用方应从设备包显式传入debounce_s和有效性；默认50ms只保留历史兼容。旧实现尚未验证构造参数范围，也不自主判断样本过期。该工具未接入任何现有PLC或水合运行入口，不能把去抖测试当作传感器或电气闭环验收。

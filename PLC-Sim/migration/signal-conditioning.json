@@ -1,0 +1,29 @@
+{
+  "schema": "plc.signal-conditioning-migration/v1",
+  "source": {
+    "path": "reviews/hydration-photoelectric-20260923/scripts/signal_model.py",
+    "sha256": "995b7d512d7d76c51d1bf61336686b8ec2f1ef70a96413c46f8110bdb8a77533",
+    "identical_copies": [
+      "assets/processed/hydration-photoelectric-20260923-v2/scripts/signal_model.py",
+      "reviews/hydration-photoelectric-20260923/evidence/validation-03/source-snapshot/scripts/signal_model.py"
+    ]
+  },
+  "destination": "PLC-Sim/signal_conditioning.py",
+  "change": "byte_identical",
+  "tests": {
+    "source": "reviews/hydration-photoelectric-20260923/tests/test_signal_model.py",
+    "source_sha256": "e17ca2e0ddf6f1b1e1848ba0dedbce441aa5a485088e1a201fab1c0ea8f32e28",
+    "extracted_class": "SignalContractTests",
+    "class_ast_equivalent": true,
+    "result": "9 passed",
+    "evidence": "/home/tyzuo/labos-reorg-20260927/c19-signal-conditioning-mxljjce8",
+    "log_sha256": "585ba42829657b9e2d56f8614be6c3365a8405474eed008559511ab50f2ffcfb"
+  },
+  "scope": "通用布尔去抖及unknown输出；不采样几何、不持有世界/时钟、不写PLC或启动网络",
+  "limitations": [
+    "保留默认50ms历史值，设备参数应由设备包显式传入",
+    "负/非有限debounce_s尚无构造验证",
+    "无自主过期机制，调用方须传valid=False；多速率/迟到/epoch在后续时序开发",
+    "旧冻结运行包未改，活动消费者切换后续单独提交"
+  ]
+}
