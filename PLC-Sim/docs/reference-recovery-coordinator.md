@@ -17,3 +17,8 @@
 21项新接口检查配合8项原门控检查通过；测试用真实SQLite和显式控制器回调，包括任意pump/reader设备ID，未假装物理停止。C32as外部冻结设施已消费正式设备事实和状态日志，在此基线上替换claim/reconcile后55项授权、样品和恢复检查通过，包含真实CPU控制器及自建临时子进程崩溃。来源、依赖替换和原测试基线见[迁移清单](../migration/reference-recovery-coordinator.json)。
 
 当前正式Testbed设施尚未启用完整恢复组合。本批没有修改启动JSON、顶层simulation、OS解析、旧work或服务，没有构建/运行ROS/GPU或操作硬件；不能计为生产接管、完整联合时序或Isaac验收。
+
+
+## 0.2.9 后续兼容
+
+上述迁移记录描述原版本。当前增加[生产身份的恢复与撤销范围](production-recovery-scope.md)：保留旧身份语义，增加生产作业撤销及显式授权 v2；原历史 AST/通过记录不追溯授予本次版本。

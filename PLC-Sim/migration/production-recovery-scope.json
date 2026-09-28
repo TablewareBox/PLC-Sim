@@ -1,0 +1,39 @@
+{
+  "stage": "C37f",
+  "base_commit": "14d734a33596c2cfc5e2485ea955fdaef72b6ea4",
+  "target_version": "0.2.9",
+  "files": {
+    "PLC-Sim/reference_execution_scope.py": "409f1d21db86b5af19414bf15018bae87537848e21aa85b0dadb5fea1be6f258",
+    "PLC-Sim/reference_operation_gate.py": "6b69f895b9fa50f555f2dd45160c46458d55855ca6768cc80ebdcf74902440cb",
+    "PLC-Sim/reference_recovery_coordinator.py": "e11d6e280fceef4aa5a63157e47f3112ea73ab796bc92289af10474cbc4fc622",
+    "PLC-Sim/reference_execution_authority.py": "5f7906b8abba73eed61c29b32605d8cfa771c8beeff27fbf4209e112f30f321a",
+    "PLC-Sim/pyproject.toml": "26b68a6b4ee89c983aef989dfaf3a3dd2ccf32e0063fc53690c1b7b25c271c57",
+    "PLC-Sim/__init__.py": "482ceffbbce203062668f6e1f7609e4cd2b2390a8b63a7a25966f4cb2f0f2789",
+    "PLC-Sim/tests/test_reference_execution_scope.py": "c3303833241d4ceb667e795b9a430b4c98e523e7da2599e8827c618adfeae9b4",
+    "PLC-Sim/docs/production-recovery-scope.md": "23b6e593b13b1381a9c18718008c3e083864d349eb143cf4fd446c57e64260a3",
+    "PLC-Sim/docs/reference-execution-authority.md": "e72055a0d2c232a62f11238fac34d5ca985b3b3f46ea79a5aba28186d8bc2f80",
+    "PLC-Sim/docs/reference-recovery-coordinator.md": "b4265f155c38b0e42c2416d5f6bc32e72396c3f7fd747c4473848bcb017d1eb6"
+  },
+  "validation": {
+    "counts": {
+      "tests": 347,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "log_sha256": "60719a5f19ebf65123d8116a85d816f1accb5c32ef17b910f943cc199eb3aaa6",
+    "junit_sha256": "69c8acd302edb1c967a3b48326fc2939969058876587a3e47341ce1842bf3c4b",
+    "command_sha256": "f4186f10e0eb5a6a60af634b3767a0bfa9576830f9a62c0931ce6cc4958ba9e8",
+    "excluded": "7 existing forced-process scenarios deselected by name; no new termination experiment"
+  },
+  "legacy_authority_default_preserved": true,
+  "production_scope": [
+    "local_device_id",
+    "job_uuid"
+  ],
+  "new_world_only": true,
+  "driver_unknown_release_implemented": false,
+  "production_sample_binding_implemented": false,
+  "ROS_evaluated": false,
+  "GPU_evaluated": false
+}

@@ -14,8 +14,10 @@ from typing import Any
 
 if __package__:
     from .reference_dispatch_binding import BINDING_SCHEMAS, DispatchBindingError, validate_dispatch_binding
+    from .reference_execution_scope import validate_execution_identity
 else:
     from reference_dispatch_binding import BINDING_SCHEMAS, DispatchBindingError, validate_dispatch_binding
+    from reference_execution_scope import validate_execution_identity
 
 def canonical(value):
     return json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False, allow_nan=False)
@@ -95,18 +97,10 @@ class ReferenceOperationGate:
 
     @staticmethod
     def _identity(value):
-        if isinstance(value, dict) and value.get('schema') in BINDING_SCHEMAS:
-            try:
-                validate_dispatch_binding(value)
-            except DispatchBindingError:
-                raise ContractError('invalid_execution_identity') from None
-            return
-        fields = {'origin_instance_id', 'job_uuid', 'task_uuid', 'command_uuid', 'payload_sha256'}
-        if (not isinstance(value, dict) or set(value) != fields
-                or any(not identifier(value[k]) for k in fields - {'payload_sha256'})
-                or not isinstance(value['payload_sha256'], str) or len(value['payload_sha256']) != 64
-                or any(c not in '0123456789abcdef' for c in value['payload_sha256'])):
-            raise ContractError('invalid_execution_identity')
+        try:
+            validate_execution_identity(value)
+        except ValueError:
+            raise ContractError('invalid_execution_identity') from None
 
     def _validate(self, request):
         if self._closed:

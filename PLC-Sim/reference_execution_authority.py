@@ -14,11 +14,14 @@ import time
 # 兼容完整包名和既有源码目录入口，复用相同的公共校验。
 if __package__:
     from .reference_operation_gate import canonical, identifier
+    from .reference_execution_scope import execution_scope, validate_execution_identity
 else:
     from reference_operation_gate import canonical, identifier
+    from reference_execution_scope import execution_scope, validate_execution_identity
 
 
 SCHEMA = 'labos.plate-authority/v1'
+DISPATCH_SCHEMA = 'labos.plate-authority/v2'
 
 
 
@@ -36,9 +39,13 @@ class AuthorityError(ValueError):
 
 
 class Authority:
-    def __init__(self, db, admin_token, *, create=False):
+    def __init__(self, db, admin_token, *, create=False, dispatch_identities=False):
         if not isinstance(admin_token, str) or len(admin_token) < 32:
             raise ValueError('authority_admin_token_too_short')
+        if type(dispatch_identities) is not bool:
+            raise ValueError('invalid_authority_identity_mode')
+        self._dispatch_identities = dispatch_identities
+        self.schema = DISPATCH_SCHEMA if dispatch_identities else SCHEMA
         self.db, self._admin = db, admin_token
         if create:
             # Individual DDL statements retain the caller's transaction boundary.
@@ -51,10 +58,14 @@ class Authority:
                 'CREATE TABLE rejection_resource_states(rejection_sequence INTEGER PRIMARY KEY,state_json TEXT NOT NULL)',
                 'CREATE TABLE operation_authority(operation_id TEXT PRIMARY KEY,grant_id TEXT NOT NULL,generation INTEGER NOT NULL,executor_id TEXT NOT NULL,epoch INTEGER NOT NULL,origin_instance_id TEXT NOT NULL)',
             ):
+                if dispatch_identities and sql.startswith('CREATE TABLE operation_authority('):
+                    sql = sql.replace('origin_instance_id TEXT NOT NULL', 'origin_instance_id TEXT')
                 db.execute(sql)
-            db.execute('INSERT INTO authority_state VALUES(1,?,?,0,NULL)', (SCHEMA, digest(admin_token)))
+            if dispatch_identities:
+                db.execute('CREATE TABLE operation_execution_scopes(operation_id TEXT PRIMARY KEY,identity_json TEXT NOT NULL,scope_json TEXT NOT NULL)')
+            db.execute('INSERT INTO authority_state VALUES(1,?,?,0,NULL)', (self.schema, digest(admin_token)))
         row = db.execute('SELECT schema,admin_sha256 FROM authority_state WHERE id=1').fetchone()
-        if row != (SCHEMA, digest(admin_token)):
+        if row != (self.schema, digest(admin_token)):
             raise RuntimeError('incompatible_existing_authority')
 
     def current(self):
@@ -125,8 +136,26 @@ class Authority:
 
     def record_operation(self, operation_id, executor_id, epoch, identity):
         active = self.current()
+        if self._dispatch_identities:
+            validate_execution_identity(identity)
+            scope = execution_scope(identity)
+            origin = scope.get('origin_instance_id')
+        else:
+            # 原v1入口及原始表的语义保持；不自动升级旧账本。
+            origin = identity['origin_instance_id']
         self.db.execute('INSERT INTO operation_authority VALUES (?,?,?,?,?,?)',
-                        (operation_id, active['grant_id'], active['generation'], executor_id, epoch, identity['origin_instance_id']))
+                        (operation_id, active['grant_id'], active['generation'], executor_id, epoch, origin))
+        if self._dispatch_identities:
+            self.db.execute('INSERT INTO operation_execution_scopes VALUES (?,?,?)',
+                            (operation_id, canonical(identity), canonical(scope)))
+
+    def revocation_scopes(self, grant_id):
+        if self._dispatch_identities:
+            return [json.loads(row[0]) for row in self.db.execute(
+                'SELECT s.scope_json FROM operation_execution_scopes s JOIN operation_authority a USING(operation_id) WHERE a.grant_id=? ORDER BY a.operation_id',
+                (grant_id,))]
+        return [{'kind': 'legacy_origin', 'origin_instance_id': row[0]} for row in self.db.execute(
+            'SELECT origin_instance_id FROM operation_authority WHERE grant_id=? ORDER BY operation_id', (grant_id,))]
 
     def record_transition(self, safe, response):
         raw = canonical(safe)
@@ -135,7 +164,8 @@ class Authority:
 
     def checkpoint(self):
         # This redacted inventory is committed with every world checkpoint.
-        return {'schema': SCHEMA, **self.current(),
+        return {'schema': self.schema, **self.current(),
+                **({'execution_scopes_sha256': digest(canonical(self.db.execute('SELECT * FROM operation_execution_scopes ORDER BY operation_id').fetchall()))} if self._dispatch_identities else {}),
                 'grants': [{'grant_id': row[0], 'generation': row[1], 'status': row[2], 'token_sha256': row[3]}
                            for row in self.db.execute('SELECT grant_id,generation,status,token_sha256 FROM authority_grants ORDER BY generation')],
                 'operation_authority_sha256': digest(canonical(self.db.execute('SELECT * FROM operation_authority ORDER BY operation_id').fetchall())),

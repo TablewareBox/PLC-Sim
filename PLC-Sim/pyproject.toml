@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "unilab-plc-sim"
-version = "0.2.8"
+version = "0.2.9"
 description = "CSV-driven OPC UA Server, Web GUI, and PLC handshake simulators"
 readme = "README.md"
 requires-python = ">=3.11,<3.12"

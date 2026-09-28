@@ -11,8 +11,10 @@ import uuid
 
 try:
     from .reference_operation_gate import ContractError, canonical, identifier
+    from .reference_execution_scope import validate_execution_identity, execution_scope, revoke_execution_scope
 except ImportError:
     from reference_operation_gate import ContractError, canonical, identifier
+    from reference_execution_scope import validate_execution_identity, execution_scope, revoke_execution_scope
 
 
 class ControllerRecovery(Protocol):
@@ -114,6 +116,10 @@ class ReferenceRecoveryCoordinator:
                     or any(c not in '0123456789abcdef' for c in digest)
                     or request['mode'] not in ('inspect', 'ensure_stopped')):
                 raise ContractError('invalid_reconciliation')
+            try:
+                validate_execution_identity(request['execution_identity'], device_id=device, fingerprint=digest)
+            except ValueError as error:
+                raise ContractError(str(error), 409) from None
             identity = canonical(request['execution_identity'])
             prior = self.db.execute('SELECT fingerprint,identity_json,device_id,status FROM operations WHERE operation_id=?', (op_id,)).fetchone()
             fence = self.db.execute('SELECT fingerprint,identity_json,device_id FROM operation_fences WHERE operation_id=?', (op_id,)).fetchone()
@@ -125,7 +131,7 @@ class ReferenceRecoveryCoordinator:
             if request['mode'] == 'ensure_stopped':
                 with self.db:
                     self.db.execute('INSERT OR IGNORE INTO operation_fences VALUES (?,?,?,?,NULL)', (op_id, device, digest, identity))
-                    self.db.execute('INSERT OR IGNORE INTO revoked_origins VALUES (?)', (request['execution_identity']['origin_instance_id'],))
+                    revoke_execution_scope(self.db, execution_scope(request['execution_identity']))
                     owner = self.db.execute('SELECT operation_id FROM controller_processes WHERE device_id=?', (device,)).fetchone()[0]
                     if self.controllers.busy(device) and owner == op_id:
                         self.controllers.interrupt(device, 'reconciliation_stop')
@@ -171,9 +177,7 @@ class ReferenceRecoveryCoordinator:
 
     @staticmethod
     def _identity(value):
-        fields = {'origin_instance_id', 'job_uuid', 'task_uuid', 'command_uuid', 'payload_sha256'}
-        if (not isinstance(value, dict) or set(value) != fields
-                or any(not identifier(value[k]) for k in fields - {'payload_sha256'})
-                or not isinstance(value['payload_sha256'], str) or len(value['payload_sha256']) != 64
-                or any(c not in '0123456789abcdef' for c in value['payload_sha256'])):
-            raise ContractError('invalid_execution_identity')
+        try:
+            validate_execution_identity(value)
+        except ValueError:
+            raise ContractError('invalid_execution_identity') from None
