@@ -12,6 +12,11 @@ import time
 from collections.abc import Callable, Mapping, Sequence
 from typing import Any
 
+if __package__:
+    from .reference_dispatch_binding import SCHEMA as DISPATCH_SCHEMA, DispatchBindingError, validate_dispatch_binding
+else:
+    from reference_dispatch_binding import SCHEMA as DISPATCH_SCHEMA, DispatchBindingError, validate_dispatch_binding
+
 def canonical(value):
     return json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False, allow_nan=False)
 
@@ -90,6 +95,12 @@ class ReferenceOperationGate:
 
     @staticmethod
     def _identity(value):
+        if isinstance(value, dict) and value.get('schema') == DISPATCH_SCHEMA:
+            try:
+                validate_dispatch_binding(value)
+            except DispatchBindingError:
+                raise ContractError('invalid_execution_identity') from None
+            return
         fields = {'origin_instance_id', 'job_uuid', 'task_uuid', 'command_uuid', 'payload_sha256'}
         if (not isinstance(value, dict) or set(value) != fields
                 or any(not identifier(value[k]) for k in fields - {'payload_sha256'})
@@ -130,6 +141,12 @@ class ReferenceOperationGate:
             inspect.signature(getattr(self.facility.devices[device], action)).bind(**args)
         except (TypeError, ValueError, OverflowError):
             raise ContractError('invalid_arguments') from None
+        if request['execution_identity'].get('schema') == DISPATCH_SCHEMA:
+            operation = {key: request[key] for key in ('world_id', 'operation_id', 'device_id', 'action', 'args')}
+            try:
+                validate_dispatch_binding(request['execution_identity'], operation=operation)
+            except DispatchBindingError as error:
+                raise ContractError(str(error), 409) from None
         if self._closed or self.facility.clock_error:
             raise ContractError('facility_unavailable', 503)
 

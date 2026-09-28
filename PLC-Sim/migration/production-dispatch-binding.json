@@ -1,0 +1,32 @@
+{
+  "stage": "C37c",
+  "base_commit": "7e7ec8bd33712bec7077a4acaebe53d0cfc56952",
+  "files_sha256": {
+    "PLC-Sim/reference_dispatch_binding.py": "2509df604a1de7564ea82fa9f4e655bb3f412205e54726fb33fe84817b3517cd",
+    "PLC-Sim/reference_operation_gate.py": "4e315d04bbab45190a3e8d0975023e641cad911a6b3cfbaa56be96e34dfb9a59",
+    "PLC-Sim/tests/test_reference_dispatch_binding.py": "6ee3e07aeb00f5e891f22d9107b030c66c3db4f10d90289dce73476424237589",
+    "PLC-Sim/pyproject.toml": "8a388174fb6fb233b4140501f6c6eca986e9602647fca25caab5ce361e0568a3",
+    "PLC-Sim/docs/reference-dispatch-binding.md": "641f0e62aab323ec6242bf6c6fbe21a078c6c8bcedeaae37d25a3af92857c5b0"
+  },
+  "tests": {
+    "baseline": 84,
+    "driver_gate_and_legacy": 129,
+    "source_collectors": 58,
+    "failures": 0,
+    "skipped": 0
+  },
+  "limitations": [
+    "not OS persistent payload freeze",
+    "not claim freshness verification",
+    "not recovery compatibility",
+    "context supplied by test fixture, not live ROS scheduler",
+    "not Isaac or real PLC program qualification"
+  ],
+  "preserved_function_ast_sha256": {
+    "repos/Uni-Lab-Sim/PLC-Sim/reference_operation_gate.py:claim": "d0a97fea5f73b7782242febe77359e6af89dfff52be33bed50ed54df07e87cd5",
+    "repos/Uni-Lab-Sim/PLC-Sim/reference_operation_gate.py:_auth": "21a21a1cea0ca8893a24cd1b77d52294b0269c04bd5738c4170a7d8504d39a89",
+    "repos/Uni-Lab-Sim/PLC-Sim/reference_operation_gate.py:execute": "9822767924bdee23fae96f23a344e3e4c7f75c0df5e219e21995011eba183a22",
+    "repos/Uni-Lab-Sim/PLC-Sim/reference_operation_gate.py:close": "bd88206a940686d19626e86ac542e90a59da7666b35161b47ad56f967faa8f45",
+    "repos/Uni-Lab-Sim/PLC-Sim/reference_operation_gate.py:__init__": "df620dea84dc891131efd71e63f43dcb7eceac73e7b643a70c8a45934192fc53"
+  }
+}
