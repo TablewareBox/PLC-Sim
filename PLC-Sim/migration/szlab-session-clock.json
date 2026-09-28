@@ -1,0 +1,47 @@
+{
+  "stage": "C15b",
+  "source_commit": "d0ee42c2f580496a82fea35fd3c869ce8f5cad93",
+  "files": {
+    "PLC-Sim/szlab_handshake_agent.py": "3c5aa6b108f95d39cdd0b7e736a179822cc4ac481035e7ce5c6b668d2e0171c7",
+    "PLC-Sim/tests/test_szlab_session_clock.py": "6063d87fe72075cfe328b2f546430659b49d669b020e3cd30d0a7bac6f55960a"
+  },
+  "changes": [
+    "SZLab CLI每次扫描将PackageSimulationRuntime.clock.now()显式传给已有设备模型",
+    "CLI构造模型时使用time_scale=1，仿真倍率仅由会话时钟应用，避免重复缩短动作时间",
+    "运行状态的protocol.time_domain标为simulation_seconds；CLI输出中的duration_seconds随之按仿真秒解释"
+  ],
+  "validation": {
+    "finite_cli_cases": 12,
+    "rates": [
+      0.25,
+      1.0,
+      4.0
+    ],
+    "modes": [
+      "package",
+      "legacy-workflow"
+    ],
+    "families": [
+      "stirrer driver duration",
+      "pump configured delay"
+    ],
+    "simulated_duration_seconds": 2,
+    "injected_wall_completion_seconds": [
+      8,
+      2,
+      0.5
+    ],
+    "related_passed": 119,
+    "optional_catalog_skips": 1,
+    "old_entry_failures": 12
+  },
+  "evidence_directory": "/home/tyzuo/labos-reorg-20260927/c15-szlab-session-clock-i_1t2xgd",
+  "preparation_note": "首轮整包测试输入只包含1号搅拌位，请求节点缺失造成6个失败；按六工位模型补齐PC拥有的空闲输入后通过，产品模型不改。",
+  "limits": [
+    "逻辑计时模型仍会到期成功；未接Isaac反馈、物理停稳或epoch",
+    "会话时钟仍为墙钟缩放；扫描睡眠/网络超时保持墙钟，倍率改变会影响每次扫描的仿真时间跨度",
+    "同一扫描内记录事件会再次读取同一个时钟，不保证冻结为一个原子物理tick",
+    "PTLC入口仍有独立时间换算；未实现跨设备包统一调度",
+    "没有改变设备包默认step/time_scale接口、现有部署JSON、OS解析或现场服务"
+  ]
+}

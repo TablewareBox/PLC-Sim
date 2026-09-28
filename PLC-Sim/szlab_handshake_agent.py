@@ -532,7 +532,8 @@ def main(argv: list[str] | None = None) -> int:
             s09_balance_reading=s09_balance_reading,
             workflow=requested_workflow,
             package_mode=package_mode,
-            time_scale=time_scale,
+            # 扫描输入已经是会话仿真秒；模型不得再次缩短动作时长。
+            time_scale=1.0,
         )
         package_runtime = SzlabPackageRuntime(
             config_path=args.package_config or default_package_config_path(),
@@ -552,6 +553,7 @@ def main(argv: list[str] | None = None) -> int:
             if args.state_file:
                 with snapshot_lock:
                     protocol_snapshot = simulator.protocol_snapshot()
+                    protocol_snapshot["time_domain"] = "simulation_seconds"
                     if s1_server is not None:
                         protocol_snapshot["s1_http"] = s1_server.snapshot()
                     write_snapshot_atomic(
@@ -637,7 +639,7 @@ def main(argv: list[str] | None = None) -> int:
             pass
         try:
             while not stop_requested:
-                events = simulator.step()
+                events = simulator.step(now=package_runtime.runtime.clock.now())
                 for event in events:
                     package_runtime.observe(event)
                     print(_event_line(event), flush=True)
