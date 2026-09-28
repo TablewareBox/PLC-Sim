@@ -1,0 +1,26 @@
+{
+  "stage": "C37g",
+  "base_commit": "e50a1cafac5d76225a8f3ce43184cd59ee76714b",
+  "files": {
+    "PLC-Sim/reference_recovery_coordinator.py": "0618f31aaf676d48a6705982613fb4cb0548abbcd20ed6d5d2519abfb84bfd71",
+    "PLC-Sim/pyproject.toml": "c0dbb3f25aa2846929a9a37909a042aff01033148973642978aaa0500af47e4c",
+    "PLC-Sim/__init__.py": "e711501587440af10f1c48cf633c43e5b291f81edb35259aabe242e1636a5c0e",
+    "PLC-Sim/tests/test_recovery_claim_world.py": "f25f12e152ba8c050761cee4b230b86cf198ef1348095b7a72de4ab5a44ddaf4",
+    "PLC-Sim/docs/recovery-claim-world.md": "c38c6c60b19a50c452482b92cd809c796d5647ff14b6eae4a643c310b9926bf9"
+  },
+  "validation": {
+    "counts": {
+      "tests": 393,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "log_sha256": "e70d87837e2e462bdf6ef8929a99bf7b0f3bb393ff95f84872dfa83ea0b7c8cd",
+    "junit_sha256": "b11999c88ce71152d1c44445c9f590199889ef27c6746f4a1378ccb37052190c",
+    "excluded_existing_forced_process_cases": 7
+  },
+  "deployment_JSON_changed": false,
+  "ROS_evaluated": false,
+  "GPU_evaluated": false,
+  "complete_cancellation_recovery_qualified": false
+}

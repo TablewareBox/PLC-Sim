@@ -47,9 +47,12 @@ class ReferenceRecoveryCoordinator:
 
     def claim(self, request):
         with self._lock, self.world_lock:
-            if not isinstance(request, dict) or set(request) != {'dispatcher_token', 'device_id', 'executor_id'}:
+            fields = {'dispatcher_token', 'device_id', 'executor_id'}
+            if not isinstance(request, dict) or set(request) not in (fields, fields | {'world_id'}):
                 raise ContractError('invalid_claim')
             self.authenticate(request)
+            if 'world_id' in request and request['world_id'] != self.world_id:
+                raise ContractError('world_mismatch', 409)
             device, executor = request['device_id'], request['executor_id']
             if not isinstance(device, str) or device not in self.device_ids or not identifier(executor):
                 raise ContractError('invalid_device_or_executor')
