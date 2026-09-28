@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import signal
 import sys
 import time
@@ -160,6 +161,20 @@ def main(argv: list[str] | None = None) -> int:
         )
         / 1000.0
     )
+    # 仅 serve 消费倍率；在构造连接或写入初始化状态之前拒绝非法配置。
+    time_scale = 1.0
+    if args.command == "serve":
+        try:
+            time_scale = float(
+                args.time_scale if args.time_scale is not None else config.get("time_scale", 1.0)
+            )
+        except (TypeError, ValueError, OverflowError):
+            print("time-scale 必须为 0..1000 之间的有限值（不含 0）", file=sys.stderr)
+            return 2
+        if not math.isfinite(time_scale) or not 0 < time_scale <= 1000:
+            print("time-scale 必须为 0..1000 之间的有限值（不含 0）", file=sys.stderr)
+            return 2
+
     adapter = OpcUaVariableAdapter(
         args.url, browse_path, username=args.username, password=args.password
     )
@@ -238,14 +253,6 @@ def main(argv: list[str] | None = None) -> int:
             pass
 
         completed = 0
-        time_scale = float(
-            args.time_scale
-            if args.time_scale is not None
-            else config.get("time_scale", 1.0)
-        )
-        if not 0 < time_scale <= 1000:
-            print("time-scale 必须在 0..1000 之间", file=sys.stderr)
-            return 2
         real_epoch = time.monotonic()
         sim_epoch = real_epoch
         fault_path = Path(args.fault_file).resolve() if args.fault_file else None

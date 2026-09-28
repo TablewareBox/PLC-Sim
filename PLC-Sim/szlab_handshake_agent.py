@@ -62,6 +62,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import signal
 import sys
 import threading
@@ -436,13 +437,15 @@ def main(argv: list[str] | None = None) -> int:
         not args.legacy_workflow_mode
         and str(config.get("mode", "package")).strip().lower() == "package"
     )
-    time_scale = (
-        float(args.time_scale)
-        if args.time_scale is not None
-        else float(config.get("time_scale", 1.0))
-    )
-    if time_scale <= 0:
-        print("仿真时间倍率必须大于 0", file=sys.stderr)
+    try:
+        time_scale = float(
+            args.time_scale if args.time_scale is not None else config.get("time_scale", 1.0)
+        )
+    except (TypeError, ValueError, OverflowError):
+        print("仿真时间倍率必须大于 0 且为有限值", file=sys.stderr)
+        return 2
+    if not math.isfinite(time_scale) or time_scale <= 0:
+        print("仿真时间倍率必须大于 0 且为有限值", file=sys.stderr)
         return 2
 
     if args.delay_ms is not None:

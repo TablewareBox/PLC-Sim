@@ -1,0 +1,28 @@
+{
+  "stage": "C15a",
+  "source_commit": "9aa12f574a446bf2914a734cfefb9aa71329a8ac",
+  "changes": [
+    "公共SimulationClock拒绝NaN/Inf，非法赋值不改变已有时间锚点或倍率",
+    "SZLab CLI在适配器构造前拒绝非有限、非正或不可转数值倍率",
+    "PTLC serve将原有(0,1000]检查前移到适配器构造前，保留list/check不消费倍率的行为"
+  ],
+  "files": {
+    "PLC-Sim/package_simulation.py": "cae569bd3c93d1885e11d12274db573fb1c5551a27131416ab4c9e888d3e5bc0",
+    "PLC-Sim/ptlc_agent_cli.py": "393cbfb8819b248eaf2e742fce798fc278ef470c9016d32ff8864bba30657374",
+    "PLC-Sim/szlab_handshake_agent.py": "ca3e9745bb0b5780346cbb9eb1298e7bae8a0ff5ba52b98140613bc1125f238d",
+    "PLC-Sim/tests/test_time_scale_admission.py": "1292433c48322a3d097d01c76bfe64d89332604463d07cfc415841a4036d2c0f"
+  },
+  "validation": {
+    "new_checks": 41,
+    "old_implementation_failures_reproduced": 21,
+    "related_checks_passed": 129,
+    "skipped_optional_catalog_check": 1,
+    "actual_endpoint_connections": 0
+  },
+  "evidence_root": "/home/tyzuo/labos-reorg-20260927/c15-clock-admission-b0hx5baj",
+  "limits": [
+    "只修复倍率准入，不增加暂停、单步、epoch、统一扫描/物理时钟或反馈完成门控",
+    "SZLab和PTLC原有有效倍率运算、模型完成条件及扫描循环不改变",
+    "不修改启动JSON、OS解析、协议变量或设备包行为定义；不授予联合仿真资格"
+  ]
+}

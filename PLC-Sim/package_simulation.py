@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import tempfile
 import threading
@@ -62,8 +63,8 @@ class SimulationClock:
     @staticmethod
     def _validate_rate(rate: float) -> float:
         value = float(rate)
-        if value <= 0:
-            raise ValueError("仿真时间倍率必须大于 0")
+        if not math.isfinite(value) or value <= 0:
+            raise ValueError("仿真时间倍率必须大于 0 且为有限值")
         return value
 
     @property
