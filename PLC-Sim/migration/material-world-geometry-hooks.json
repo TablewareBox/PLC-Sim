@@ -1,0 +1,36 @@
+{
+  "schema": "plc.material-world-geometry-migration/v1",
+  "stage": "C32af",
+  "source_commit": "e30255f55765bfbf4df1ef5f1e75e6a91a1fb569",
+  "source_path": "packages/labos_instruments/world.py",
+  "source_sha256": "fb6b735f5d89f423954379b2769465ae98c5a27e938cda163e0ebe172f7e4281",
+  "before_sha256": "b4177bb8624145183ab811ab4b872719681baf9871b245ac67936b983a026668",
+  "after_sha256": "d1a3ce027b5792b3c5eb9655805339eb22ee638053afd86f4a4ab141801ce230",
+  "world_class_ast_identical_to_source": true,
+  "modified_methods": [
+    "__init__",
+    "claim_plate",
+    "release_plate"
+  ],
+  "added_method": "check_operation_geometry",
+  "source_repository": "work/plate-authority-dev-20260922/testbed",
+  "target": "PLC-Sim/material_world.py",
+  "validation": {
+    "unchanged_baseline_tests": 21,
+    "sdk_tests": 29,
+    "current_instrument_consumers": 48,
+    "instrument_commit": "32933a21f842da730c9ee80ba1657dd83f82046e",
+    "initial_consumer_skipped": 1,
+    "initial_skip_reason": "未显式提供冻结原驱动夹具；后续明确指定原来源后48项无跳过",
+    "upstream_fixture": "/home/tyzuo/Lab-OS-Testbed/work/instruments-dev-20260916/third_party/community_instruments",
+    "evidence_directory": "/home/tyzuo/labos-reorg-20260927/c32-world-custody-hooks-beh6zqlx"
+  },
+  "limits": [
+    "可选私有钩子默认None；设备包提供领域判据，本模块不自动启用几何",
+    "claim/release在世界锁内先检查、再修改托管和发事件、最后通知完成",
+    "前置拒绝不产生托管变化；后置异常保留已经发生的变化，宿主须处理恢复/事务",
+    "check_operation_geometry直接调用时仍由宿主持锁，不独立创建原子边界",
+    "未接统一时钟/Isaac，PRCXI步骤钩子下一笔迁移",
+    "不修改启动JSON/simulation/OS解析或当前服务"
+  ]
+}

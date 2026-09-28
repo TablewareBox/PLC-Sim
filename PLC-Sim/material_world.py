@@ -27,6 +27,7 @@ class World:
         self.events: list[dict] = []
         self.lock = threading.RLock()
         self._tick: list[Callable[[float], None]] = []
+        self._operation_geometry_guard = None
 
     def emit(self, kind, **fields):
         with self.lock:
@@ -70,21 +71,32 @@ class World:
             self.emit("plate.created", plate_id=id, rows=rows, columns=columns)
             return mapping
 
+    def check_operation_geometry(self, boundary, **details):
+        # Optional private admission hook. The World remains custody authority.
+        if self._operation_geometry_guard is not None:
+            self._operation_geometry_guard(boundary, details)
+
     def claim_plate(self, plate_id, device_id):
         with self.lock:
             if plate_id not in self.plates:
                 raise ModelError("unknown_plate")
             if self.plate_locations.get(plate_id) != "deck":
                 raise ModelError("plate_in_other_device")
+            details = dict(plate_id=plate_id, source="deck", target=device_id, device_id=device_id)
+            self.check_operation_geometry("handoff", **details)
             self.plate_locations[plate_id] = device_id
-            self.emit("plate.claimed", plate_id=plate_id, device_id=device_id)
+            event = self.emit("plate.claimed", plate_id=plate_id, device_id=device_id)
+            self.check_operation_geometry("handoff_committed", model_event_sequence=event["sequence"], **details)
 
     def release_plate(self, plate_id, device_id):
         with self.lock:
             if self.plate_locations.get(plate_id) != device_id:
                 raise ModelError("plate_location_mismatch")
+            details = dict(plate_id=plate_id, source=device_id, target="deck", device_id=device_id)
+            self.check_operation_geometry("handoff", **details)
             self.plate_locations[plate_id] = "deck"
-            self.emit("plate.released", plate_id=plate_id, device_id=device_id)
+            event = self.emit("plate.released", plate_id=plate_id, device_id=device_id)
+            self.check_operation_geometry("handoff_committed", model_event_sequence=event["sequence"], **details)
 
     def sample(self, id):
         try:
