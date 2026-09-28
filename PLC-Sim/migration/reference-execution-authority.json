@@ -1,0 +1,50 @@
+{
+  "schema": "plc.reference-execution-authority-migration/v1",
+  "stage": "C32ae",
+  "source_repository": "work/plate-authority-dev-20260922/testbed",
+  "source_commit": "e30255f55765bfbf4df1ef5f1e75e6a91a1fb569",
+  "source_path": "packages/labos_native_plate/authority.py",
+  "source_sha256": "b2d4bd34f3153de27dd87892aae590e793dd22bedc4d96a8e930ba08715ae20d",
+  "target_sha256": "2987758d01120ff9cb8d860ba341f8dd5e457ae593ce640c0d813ea9e202f392",
+  "preserved_ast": [
+    "SCHEMA",
+    "digest",
+    "AuthorityError",
+    "Authority"
+  ],
+  "reused_ast_identical_helpers": [
+    "canonical",
+    "identifier"
+  ],
+  "target": "PLC-Sim/reference_execution_authority.py",
+  "preserved_methods": [
+    "AuthorityError.__init__",
+    "Authority.__init__",
+    "Authority.current",
+    "Authority.known",
+    "Authority.authenticate",
+    "Authority.validate_transition",
+    "Authority.apply",
+    "Authority.record_operation",
+    "Authority.record_transition",
+    "Authority.checkpoint"
+  ],
+  "schema_preserved": "labos.plate-authority/v1",
+  "validation": {
+    "original_host_tests": 17,
+    "migrated_host_tests": 17,
+    "formal_authority_tests": 22,
+    "existing_gate_tests": 8,
+    "package_and_source_stdlib_import": true,
+    "evidence_directory": "/home/tyzuo/labos-reorg-20260927/c32-reference-authority-e26jqedj"
+  },
+  "limits": [
+    "仅CPU参考设施授权账本，不替代OS身份或生产授权体系",
+    "调用者持有设施/world锁和SQLite事务，并保证validate/apply/record整体串行原子性",
+    "apply/record接受内部已验证对象，不是可独立暴露的网络入口",
+    "不提交事务、停止设备、关闭数据库或推进时钟；时间戳沿用墙钟审计语义",
+    "只存授权及资源摘要/关联记录，具体设备和样品规则仍归设备包",
+    "旧宿主崩溃/停止回归不授予当前正式设施该能力；未接入当前在线门控",
+    "不改启动JSON/simulation/OS解析，不运行硬件或切换服务"
+  ]
+}
