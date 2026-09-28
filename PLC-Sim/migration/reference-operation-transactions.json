@@ -1,0 +1,147 @@
+{
+  "root_base": "7d4ec1fddc15083910b8dd508b70df3583078582",
+  "sdk_base": "477a7f8fc3cbb815c708f6c4690ea4a61c24466c",
+  "source_path": "suites/native_plate/recovery_environment.py",
+  "schema": "plc.reference-operation-transactions-migration/v1",
+  "stage": "C32ax",
+  "evidence_directory": "/home/tyzuo/labos-reorg-20260927/c32-operation-transactions-h1g4odk3",
+  "source_sha256": "c5a045aa86bff51b6acaebbc9d04f2505a36503733551694ef017d6ed040003a",
+  "equivalence": {
+    "before_callback_ast_equal": true,
+    "perform_callback_ast_equal": true,
+    "unchanged_host_methods": [
+      "__init__",
+      "_geometry_context",
+      "_operation_payload",
+      "_sample_state",
+      "_resource_facts",
+      "_sample_expire_and_stop",
+      "_sample_checkpoint",
+      "_validate_hook",
+      "_restore_committed",
+      "_save_durable",
+      "_durable_advance",
+      "_busy",
+      "_controller_state",
+      "_sync_controllers",
+      "_interrupt",
+      "_maybe_pause",
+      "_meta",
+      "_checkpoint",
+      "_auth",
+      "_auth_request",
+      "authority",
+      "health",
+      "_recovery_coordinator",
+      "claim",
+      "_lease",
+      "_record_rejection",
+      "reconcile",
+      "_identity",
+      "_validate",
+      "close",
+      "__enter__",
+      "__exit__"
+    ],
+    "changed_host_methods": [
+      "execute",
+      "_execute_new"
+    ]
+  },
+  "validation": {
+    "sdk": {
+      "tests": 28,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "host": {
+      "tests": 143,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "files": [
+    {
+      "path": "reference_operation_transactions.py",
+      "sha256": "3d656e669ed811477d7c075f3fd48b540db475e0515813c9922c051e252af8cd"
+    },
+    {
+      "path": "tests/test_reference_operation_transactions.py",
+      "sha256": "f320906084977b7fa7ad1abda5bdab381391fb23e7ea3de6ea70d0ed646223bf"
+    },
+    {
+      "path": "docs/reference-operation-transactions.md",
+      "sha256": "884a7ca7c96bf6cb6462b997a0da491447931ce01ebc9d9b38ede2a46e989a61"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "base.json",
+      "sha256": "e9bb21c62784a91f7f91dea2426e2f364cb856ac302ea62c65c4403a2fad5088"
+    },
+    {
+      "path": "callback-bodies.json",
+      "sha256": "84ef1e2016e8b2797a9973274029e79226aa505d7bd0de4a75ab37f35579e967"
+    },
+    {
+      "path": "equivalence.json",
+      "sha256": "f56db68186634f9054f1ed9a7f680ce08ec35ea4daf31b58bda0ffead26c8653"
+    },
+    {
+      "path": "host-adaptation.patch",
+      "sha256": "837f55bff18d50ffc26763aa67a4473d26c978188af5f3bbc6f0a51be0d4514c"
+    },
+    {
+      "path": "host-command.json",
+      "sha256": "f3aa4c21a10ab7ef6aa6064cf5cc8f3513826223ff2c7191f90af0e51068a804"
+    },
+    {
+      "path": "host-initial.log",
+      "sha256": "02536254f4014a6e2e17c10fc8a15e47e2b084b67d19b7aeaef41d3232a6a0d1"
+    },
+    {
+      "path": "host-initial.xml",
+      "sha256": "473df36a5c9fc4884d002475dd55e873e72f5f68904352851bb550a6e5f242b6"
+    },
+    {
+      "path": "host.log",
+      "sha256": "75f7bdd2c929dbc4ad84aba809007f04ccc9ac5e3a78f700b0f1a0a04e698602"
+    },
+    {
+      "path": "host.xml",
+      "sha256": "4454c66bae0418d1d3d641dbc79034991cb7ca40b46325b668c874c6ad1e77b7"
+    },
+    {
+      "path": "original-host.py",
+      "sha256": "c5a045aa86bff51b6acaebbc9d04f2505a36503733551694ef017d6ed040003a"
+    },
+    {
+      "path": "sdk-command.json",
+      "sha256": "55bc0cae07438bf6d59b2f43d344160f55b2165a3e54ad78ff25248369505a40"
+    },
+    {
+      "path": "sdk-initial.log",
+      "sha256": "4738b8c545d8eec15bbbf89aa52e44eccd3e925e37cc2aa5b60e067e14225b29"
+    },
+    {
+      "path": "sdk-initial.xml",
+      "sha256": "67d863f65b2d78d5343c81429d880055b22c5308bde45d38d6b7ce7f84287f4f"
+    },
+    {
+      "path": "sdk.log",
+      "sha256": "a8d25830c0944126ef71a033ad1a55c196039d7d72f1172cf8e44a45f07b0e05"
+    },
+    {
+      "path": "sdk.xml",
+      "sha256": "b2361dd4dbcb56799795e556659f93e40dc75c41f2c045b9222187f9c8d3a1cb"
+    }
+  ],
+  "limitations": [
+    "仅固定CPU参考事务；调用方负责验证、锁和模型隔离",
+    "受理阶段失败由外层还原准入前状态",
+    "还原失败向上传播；完整设施隔离仍待补齐",
+    "不改JSON/OS/服务，无真实PLC或Isaac资格"
+  ]
+}
