@@ -1,0 +1,157 @@
+{
+  "root_base": "d6edd620b417f6d4849676c9f76323087d5809cd",
+  "sdk_base": "1e8fc4125b9474ea8fbf930f9fe9618268e17e0b",
+  "source_commit": "e30255f55765bfbf4df1ef5f1e75e6a91a1fb569",
+  "source_path": "packages/labos_native_plate/environment.py",
+  "source_sha256": "712044eb6e99d75423609f5b4615f6f8d3d08c252d32b7ee651ca3c9f082120d",
+  "source_methods": [
+    "_save_durable",
+    "_restore_committed"
+  ],
+  "schema": "plc.reference-state-journal-migration/v1",
+  "stage": "C32as",
+  "target": "PLC-Sim/reference_state_journal.py",
+  "equivalence": "四种账本组合各三次保存，原方法与迁后四表全部记录相同；非逐字/AST迁移",
+  "changes": [
+    "设备capture/restore与来源身份留给调用方",
+    "摘要/数量核验后才返回模型状态",
+    "从数据库取追加游标，事务回滚后无内存游标漂移",
+    "明确拒绝截短清单及数量/最大序号不一致"
+  ],
+  "validation": {
+    "formal": {
+      "tests": 34,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    "adapted": {
+      "tests": 55,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    }
+  },
+  "format_comparison": {
+    "passed": true,
+    "cases": [
+      {
+        "authority": false,
+        "sample": false,
+        "save_cycles": 3,
+        "database_rows_equal": true,
+        "restored_values_equal": true,
+        "damaged_inventory_rejected_before_return": true,
+        "old_restore_called_before_inventory_rejection": true
+      },
+      {
+        "authority": true,
+        "sample": false,
+        "save_cycles": 3,
+        "database_rows_equal": true,
+        "restored_values_equal": true,
+        "damaged_inventory_rejected_before_return": true,
+        "old_restore_called_before_inventory_rejection": true
+      },
+      {
+        "authority": false,
+        "sample": true,
+        "save_cycles": 3,
+        "database_rows_equal": true,
+        "restored_values_equal": true,
+        "damaged_inventory_rejected_before_return": true,
+        "old_restore_called_before_inventory_rejection": true
+      },
+      {
+        "authority": true,
+        "sample": true,
+        "save_cycles": 3,
+        "database_rows_equal": true,
+        "restored_values_equal": true,
+        "damaged_inventory_rejected_before_return": true,
+        "old_restore_called_before_inventory_rejection": true
+      }
+    ],
+    "source_sha256": "712044eb6e99d75423609f5b4615f6f8d3d08c252d32b7ee651ca3c9f082120d"
+  },
+  "evidence_directory": "/home/tyzuo/labos-reorg-20260927/c32-state-journal-iwl97858",
+  "files": [
+    {
+      "path": "PLC-Sim/reference_state_journal.py",
+      "sha256": "e2c0e44ed81e231bbfdc8dd85c65dbfe1867429103621c135befa0012971ccdf"
+    },
+    {
+      "path": "PLC-Sim/tests/test_reference_state_journal.py",
+      "sha256": "00360ce0dd27b2787a5cb1cbb30d72bce9cf50e417c5bd6f9ccc1c2cfd5e8354"
+    },
+    {
+      "path": "PLC-Sim/docs/reference-state-journal.md",
+      "sha256": "6e46414b39dddbdda91275de87770da7079a43ce4993d4440a16f82c7d93178b"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "adapted-command.json",
+      "sha256": "224b869807eef03ac2a83973eae7dfe16d2fdade46ddded7ca189c56c14f9bb3"
+    },
+    {
+      "path": "adapted.log",
+      "sha256": "1ade63c4a90b719d53390f90aea8827219f79f493b8b40a00cbd16c5301f2d88"
+    },
+    {
+      "path": "adapted.xml",
+      "sha256": "64ac548f8651509af99e977678160a450f7d0b212b0174ae16914c180a591eab"
+    },
+    {
+      "path": "baseline-reference.json",
+      "sha256": "8f4ab3694ba39ae8a120a135bf501d47d8ae271653c9e65d8a43fd269f9ec63d"
+    },
+    {
+      "path": "compare_format.py",
+      "sha256": "558ddfbef6fa7726115a7f12cce5024cfd571cb1eeca92fb1b12fa6fcfe76643"
+    },
+    {
+      "path": "formal-command.json",
+      "sha256": "f1ae70297202d2061c0b94fd9e9fa6f142bca03e68ba4ac91d699f1fa9c1c38c"
+    },
+    {
+      "path": "formal.log",
+      "sha256": "b7b0dffb163d5f7932593fac47966738946704136ab929fec4960087de3dfe8e"
+    },
+    {
+      "path": "formal.xml",
+      "sha256": "a03fb3672a80befa3b64c20e93e5dd73aaf1fe92165ef30ab6197e899a55a9bd"
+    },
+    {
+      "path": "format-comparison.json",
+      "sha256": "3d1dd897b688db50b450b085e9c28b5036594453305075c2d35085e0f90d40fa"
+    },
+    {
+      "path": "format-comparison.log",
+      "sha256": "5a99eb925cc4ebcf824ed7113139d5340fb04badba981ec546d11ff9d7fc523f"
+    },
+    {
+      "path": "host-adaptation.patch",
+      "sha256": "e2eb799ba3b038fd51ff20eb009c34a6397b76a763813b9870af65891102e378"
+    },
+    {
+      "path": "original-environment.py",
+      "sha256": "712044eb6e99d75423609f5b4615f6f8d3d08c252d32b7ee651ca3c9f082120d"
+    },
+    {
+      "path": "source.json",
+      "sha256": "087d5a26755a0d60e7b5c764144f7459e4849decce6c794051bee6a148836491"
+    },
+    {
+      "path": "stdlib-import.log",
+      "sha256": "b5546a561da66414bb904164bfa2d528caf3a27728f7da242f6d84d80bd43402"
+    }
+  ],
+  "limits": [
+    "宿主锁/事务/启用账本集及模型来源仍须显式核验",
+    "不能把同连接未提交状态当持久恢复点",
+    "旧序列前缀由宿主保证不变；非对抗性全库审计",
+    "当前正式设施未接线，不授予当前OS/ROS/Isaac资格",
+    "不改启动JSON/simulation/服务"
+  ]
+}
