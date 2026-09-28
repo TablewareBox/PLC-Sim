@@ -70,3 +70,53 @@ def test_malformed_wire_identity_is_rejected(part):
     value[part] = 'invalid'
     with pytest.raises(DispatchBindingError):
         validate_dispatch_binding(value)
+
+
+def test_distinct_runtime_and_facility_targets_use_version_two():
+    context, operation = inputs()
+    context['local_device_id'] = 'graph-node'
+    target = {'local_device_id': 'graph-node', 'device_id': operation['device_id']}
+    with pytest.raises(DispatchBindingError, match='dispatch_device_mismatch'):
+        bind_dispatch(context, parameters={}, operation=operation)
+    value = bind_dispatch(context, parameters={}, operation=operation, target=target)
+    assert value['schema'] == 'labos.production-dispatch-binding/v2'
+    assert value['dispatch']['local_device_id'] == 'graph-node'
+    assert value['target'] == target
+    target['device_id'] = 'mutated'
+    validate_dispatch_binding(value, operation=operation)
+    assert value['target']['device_id'] == 'device'
+
+
+@pytest.mark.parametrize('target', [{}, {'local_device_id': 'device'},
+    {'local_device_id': 'other', 'device_id': 'device'},
+    {'local_device_id': 'device', 'device_id': ''},
+    {'local_device_id': 'device', 'device_id': 'other'},
+    {'local_device_id': 'device', 'device_id': 'device', 'extra': True}, []])
+def test_version_two_rejects_incomplete_or_mismatched_target(target):
+    context, operation = inputs()
+    with pytest.raises(DispatchBindingError):
+        bind_dispatch(context, parameters={}, operation=operation, target=target)
+
+
+@pytest.mark.parametrize('change', ['remove_target', 'downgrade', 'unknown_schema',
+                                    'malformed_schema', 'context', 'target', 'operation'])
+def test_wire_target_substitution_is_rejected(change):
+    context, operation = inputs()
+    value = bind_dispatch(context, parameters={}, operation=operation,
+                          target={'local_device_id': 'device', 'device_id': 'device'})
+    if change == 'remove_target':
+        value.pop('target')
+    elif change == 'downgrade':
+        value['schema'] = 'labos.production-dispatch-binding/v1'
+    elif change == 'unknown_schema':
+        value['schema'] = 'labos.production-dispatch-binding/v3'
+    elif change == 'malformed_schema':
+        value['schema'] = []
+    elif change == 'context':
+        value['dispatch']['local_device_id'] = 'other'
+    elif change == 'target':
+        value['target']['device_id'] = 'other'
+    else:
+        operation['device_id'] = 'other'
+    with pytest.raises(DispatchBindingError):
+        validate_dispatch_binding(value, operation=operation)

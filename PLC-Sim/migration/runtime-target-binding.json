@@ -1,0 +1,36 @@
+{
+  "schema": "lab.testbed-runtime-target-binding/v1",
+  "stage": "C37d",
+  "base_commit": "fc9cf538459967bb0834b62297553f8500d003e3",
+  "trigger": "Unchanged graph runtime node IDs differ from facility device IDs",
+  "implementation": {
+    "PLC-Sim/reference_dispatch_binding.py": "659bfea62ab6c9349c7293eddb5fd8ef996da1d148aff457d577f9f06c2d7633",
+    "PLC-Sim/reference_operation_gate.py": "53fd35dfabeade42d0944fe51a9a8cc281bc31f93dc6b09b89d87398ffd7715f",
+    "PLC-Sim/tests/test_reference_dispatch_binding.py": "70269edd0fe1ca5bb88945a3c8b93ae461cc3ee1064c706d1f36b967a23b9fd9",
+    "PLC-Sim/pyproject.toml": "ecd50057f6c598ed6454183af59b7fffcc079cd1d50f8c44f1961c88d85d5a30",
+    "PLC-Sim/docs/reference-dispatch-binding.md": "4818ef3d4f1c2bcc3eae2129f4efa94efdf60e9a812a6830b0ddfa7ae6eb8fca"
+  },
+  "validation": {
+    "counts": {
+      "tests": 162,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "protected_unchanged": 18,
+    "intentional_protected_change": "repos/Uni-Lab-Instruments/unilab_instruments/drivers/native_plate.py",
+    "gate_auth_claim_execute_lifecycle_AST_unchanged": true,
+    "driver_legacy_transport_binding_recovery_AST_unchanged": true,
+    "deployment_graph_sha256": "6edf8895e78b6acfb0a24c14c2c3db992a9137af4a299232819f231b998eaab5",
+    "OS_unchanged": "a6f023d6e85d3d0d4c9a375b87fc62466131de6d"
+  },
+  "evidence_directory": "/home/tyzuo/labos-reorg-20260927/c37-runtime-target-o7yb09dv",
+  "limits": [
+    "Actual wrapper constructor exercised with ROS leaves substituted; no Registry activation or ROS run",
+    "v2 target mapping is authenticated caller metadata, not an OS authorization proof",
+    "Legacy v1 same-target contract retained; legacy recovery unchanged",
+    "Production failure/UNKNOWN and durable recovery remain incomplete"
+  ],
+  "release_qualified": false,
+  "joint_simulation_qualified": false
+}

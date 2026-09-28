@@ -6,6 +6,8 @@ import json
 from typing import Any
 
 SCHEMA = 'labos.production-dispatch-binding/v1'
+TARGET_SCHEMA = 'labos.production-dispatch-binding/v2'
+BINDING_SCHEMAS = (SCHEMA, TARGET_SCHEMA)
 CONTEXT_SCHEMA = 'unilab.device-execution-identity/v1'
 CONTEXT_FIELDS = {'schema', 'kind', 'job_uuid', 'task_uuid', 'local_device_id',
                   'action_name', 'execution_source', 'command_uuid', 'node_uuid',
@@ -35,9 +37,12 @@ def _sha(value: Any) -> bool:
 
 def validate_dispatch_binding(value: dict, *, operation: dict | None = None) -> None:
     """核对版本、完整身份和操作绑定；不查询OS权威或替代设施租约。"""
+    fields = {'schema', 'dispatch', 'payload_sha256', 'operation_sha256'}
+    if isinstance(value, dict) and value.get('schema') == TARGET_SCHEMA:
+        fields.add('target')
     if (not isinstance(value, dict)
-            or set(value) != {'schema', 'dispatch', 'payload_sha256', 'operation_sha256'}
-            or value['schema'] != SCHEMA
+            or set(value) != fields
+            or value['schema'] not in BINDING_SCHEMAS
             or not _sha(value['payload_sha256']) or not _sha(value['operation_sha256'])):
         raise DispatchBindingError('invalid_production_dispatch_binding')
     context = value['dispatch']
@@ -62,10 +67,17 @@ def validate_dispatch_binding(value: dict, *, operation: dict | None = None) -> 
             keys.add(pair[0])
     else:
         raise DispatchBindingError('unsupported_dispatch_kind')
+    target = value.get('target')
+    if value['schema'] == TARGET_SCHEMA:
+        if (not isinstance(target, dict) or set(target) != {'local_device_id', 'device_id'}
+                or any(not _text(target[key]) for key in target)
+                or target['local_device_id'] != context['local_device_id']):
+            raise DispatchBindingError('invalid_dispatch_target')
     if operation is not None:
         if not isinstance(operation, dict) or set(operation) != OPERATION_FIELDS:
             raise DispatchBindingError('invalid_bound_operation')
-        if context['local_device_id'] != operation['device_id']:
+        expected_device = context['local_device_id'] if target is None else target['device_id']
+        if expected_device != operation['device_id']:
             raise DispatchBindingError('dispatch_device_mismatch')
         try:
             matches = _digest(operation) == value['operation_sha256']
@@ -75,7 +87,7 @@ def validate_dispatch_binding(value: dict, *, operation: dict | None = None) -> 
             raise DispatchBindingError('dispatch_operation_mismatch')
 
 
-def bind_dispatch(context: dict, *, parameters: dict, operation: dict) -> dict:
+def bind_dispatch(context: dict, *, parameters: dict, operation: dict, target: dict | None = None) -> dict:
     """冻结本次调用的元数据及参数摘要；不保存参数或签发执行权限。"""
     if not isinstance(parameters, dict):
         raise DispatchBindingError('invalid_dispatch_parameters')
@@ -84,6 +96,8 @@ def bind_dispatch(context: dict, *, parameters: dict, operation: dict) -> dict:
         value = {'schema': SCHEMA, 'dispatch': detached,
                  'payload_sha256': _digest({'action_name': detached['action_name'], 'param': parameters}),
                  'operation_sha256': _digest(operation)}
+        if target is not None:
+            value.update(schema=TARGET_SCHEMA, target=json.loads(_canonical(target)))
         validate_dispatch_binding(value, operation=operation)
         return value
     except (KeyError, TypeError, ValueError, OverflowError) as error:
