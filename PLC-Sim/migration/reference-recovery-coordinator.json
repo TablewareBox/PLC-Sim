@@ -1,0 +1,110 @@
+{
+  "root_base": "b5d4ea3f722962e364f5eec556e78391943a7d76",
+  "sdk_base": "2f497169ce42417a96ca071bf47f900d10cd0bd0",
+  "source_commit": "e30255f55765bfbf4df1ef5f1e75e6a91a1fb569",
+  "source_path": "packages/labos_native_plate/environment.py",
+  "source_sha256": "712044eb6e99d75423609f5b4615f6f8d3d08c252d32b7ee651ca3c9f082120d",
+  "method_ast_equal_after_dependency_substitution": {
+    "claim": true,
+    "_lease": true,
+    "reconcile": true,
+    "_identity": true
+  },
+  "substitutions": {
+    "self.facility.world.lock": "self.world_lock",
+    "self._auth_request": "self.authenticate",
+    "self._busy": "self.controllers.busy",
+    "self._interrupt": "self.controllers.interrupt",
+    "self._controller_state": "self.controllers.state",
+    "self._save_durable": "self.save_durable",
+    "self._authority.current()": "self.authority_current()",
+    "if self._authority:": "if self.authority_current:",
+    "DEVICES": "self.device_ids"
+  },
+  "schema": "plc.reference-recovery-coordinator-migration/v1",
+  "stage": "C32at",
+  "target": "PLC-Sim/reference_recovery_coordinator.py",
+  "shared_contract_error_ast_equal": true,
+  "validation": {
+    "formal": {
+      "tests": 29,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    "adapted": {
+      "tests": 55,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    }
+  },
+  "evidence_directory": "/home/tyzuo/labos-reorg-20260927/c32-recovery-coordinator-31qfh8em",
+  "files": [
+    {
+      "path": "PLC-Sim/reference_recovery_coordinator.py",
+      "sha256": "031e6dcc07e1a62c3d522952887a26586aab882472ebd2dee8e4fbbeed63444e"
+    },
+    {
+      "path": "PLC-Sim/tests/test_reference_recovery_coordinator.py",
+      "sha256": "53f3bc71e334812451fa9769fcf686dd2cd34ff90f3c93d0ddf51af364338c67"
+    },
+    {
+      "path": "PLC-Sim/docs/reference-recovery-coordinator.md",
+      "sha256": "39472b77157ea740ec00da4d5608b4c4d5126cff7d67a7883caecdc806e4ec55"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "adapted-command.json",
+      "sha256": "abee18f800d92b7da830c4875bca1213010b74840442eba9f88e9128f3c50ee5"
+    },
+    {
+      "path": "adapted.log",
+      "sha256": "b48bc2ef787f27d2b9e8ebf509ac184d51301bfa4815af0e0de53eee1985f7db"
+    },
+    {
+      "path": "adapted.xml",
+      "sha256": "35b53eccaac77ba714c87c9e3c5479a6a84233bb3834aad91ba4698cbcf68b63"
+    },
+    {
+      "path": "baseline-reference.json",
+      "sha256": "6feccb50bf6eb5723eee92de0059c859321f73d9298c85b11c52141268e73cb0"
+    },
+    {
+      "path": "formal-command.json",
+      "sha256": "d321b96eda60c5f880e2a2803fc60a79b734320bde67d8610bf70fa36e716a95"
+    },
+    {
+      "path": "formal.log",
+      "sha256": "39009c7083f904a1b2f03cf68b6edd51bb669af4d5510c33ddf641651e3c03ac"
+    },
+    {
+      "path": "formal.xml",
+      "sha256": "0db4f00ade6f43b503e97662c77bc162ec5b9e906600c518806fcdd767a814d3"
+    },
+    {
+      "path": "host-adaptation.patch",
+      "sha256": "d6bede497cc496409eff6f1d20a532decca8023f879080e5f527eb19e90b53fb"
+    },
+    {
+      "path": "original-environment.py",
+      "sha256": "712044eb6e99d75423609f5b4615f6f8d3d08c252d32b7ee651ca3c9f082120d"
+    },
+    {
+      "path": "source.json",
+      "sha256": "50656175a8302fa4f87b4bac2b3d89867fab3c53779791ec41ccc4a3ba5f37e1"
+    },
+    {
+      "path": "stdlib-import.log",
+      "sha256": "5c5c6e6b8d99903a460103b0056b027d0cfcdf3f357959bc88efa19243ab49d2"
+    }
+  ],
+  "limits": [
+    "只有claim/reconcile，完整执行/恢复宿主尚未组合",
+    "实际设备停止、授权真实性、锁和持久化由显式依赖提供",
+    "公开方法沿用原事务提交点，不嵌套其他未提交事务",
+    "失败后的内存隔离及生命周期仍由宿主负责",
+    "不改启动JSON/simulation/OS/服务，不授予ROS/GPU资格"
+  ]
+}
