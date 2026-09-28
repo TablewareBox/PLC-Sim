@@ -7,7 +7,8 @@ from typing import Any
 
 SCHEMA = 'labos.production-dispatch-binding/v1'
 TARGET_SCHEMA = 'labos.production-dispatch-binding/v2'
-BINDING_SCHEMAS = (SCHEMA, TARGET_SCHEMA)
+SAMPLE_SCHEMA = 'labos.production-dispatch-binding/v3'
+BINDING_SCHEMAS = (SCHEMA, TARGET_SCHEMA, SAMPLE_SCHEMA)
 CONTEXT_SCHEMA = 'unilab.device-execution-identity/v1'
 CONTEXT_FIELDS = {'schema', 'kind', 'job_uuid', 'task_uuid', 'local_device_id',
                   'action_name', 'execution_source', 'command_uuid', 'node_uuid',
@@ -38,7 +39,7 @@ def _sha(value: Any) -> bool:
 def validate_dispatch_binding(value: dict, *, operation: dict | None = None) -> None:
     """核对版本、完整身份和操作绑定；不查询OS权威或替代设施租约。"""
     fields = {'schema', 'dispatch', 'payload_sha256', 'operation_sha256'}
-    if isinstance(value, dict) and value.get('schema') == TARGET_SCHEMA:
+    if isinstance(value, dict) and value.get('schema') in (TARGET_SCHEMA, SAMPLE_SCHEMA):
         fields.add('target')
     if (not isinstance(value, dict)
             or set(value) != fields
@@ -68,14 +69,20 @@ def validate_dispatch_binding(value: dict, *, operation: dict | None = None) -> 
     else:
         raise DispatchBindingError('unsupported_dispatch_kind')
     target = value.get('target')
-    if value['schema'] == TARGET_SCHEMA:
+    if value['schema'] in (TARGET_SCHEMA, SAMPLE_SCHEMA):
         if (not isinstance(target, dict) or set(target) != {'local_device_id', 'device_id'}
                 or any(not _text(target[key]) for key in target)
                 or target['local_device_id'] != context['local_device_id']):
             raise DispatchBindingError('invalid_dispatch_target')
     if operation is not None:
-        if not isinstance(operation, dict) or set(operation) != OPERATION_FIELDS:
+        fields = OPERATION_FIELDS | ({'sample_context'} if value['schema'] == SAMPLE_SCHEMA else set())
+        if not isinstance(operation, dict) or set(operation) != fields:
             raise DispatchBindingError('invalid_bound_operation')
+        if value['schema'] == SAMPLE_SCHEMA:
+            sample = operation['sample_context']
+            if (not isinstance(sample, dict) or set(sample) != {'sample_id', 'reservation_id'}
+                    or any(not _text(sample[key]) for key in sample)):
+                raise DispatchBindingError('invalid_bound_sample_context')
         expected_device = context['local_device_id'] if target is None else target['device_id']
         if expected_device != operation['device_id']:
             raise DispatchBindingError('dispatch_device_mismatch')
@@ -98,6 +105,12 @@ def bind_dispatch(context: dict, *, parameters: dict, operation: dict, target: d
                  'operation_sha256': _digest(operation)}
         if target is not None:
             value.update(schema=TARGET_SCHEMA, target=json.loads(_canonical(target)))
+        if isinstance(operation, dict) and 'sample_context' in operation:
+            # v3明确绑定样品及预留；无包装器映射时只允许设备同名。
+            if target is None:
+                value['target'] = {'local_device_id': detached['local_device_id'],
+                                   'device_id': detached['local_device_id']}
+            value['schema'] = SAMPLE_SCHEMA
         validate_dispatch_binding(value, operation=operation)
         return value
     except (KeyError, TypeError, ValueError, OverflowError) as error:
