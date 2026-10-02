@@ -71,11 +71,13 @@ from pathlib import Path
 from typing import Any
 
 try:
+    from .graph_initialization import prepare_graph_initialization
     from .common import load_yaml
     from .package_simulation import write_snapshot_atomic
     from .szlab_package_runtime import SzlabPackageRuntime, default_package_config_path
     from .szlab_s1_sim import S1SimulationServer
 except ImportError:  # Direct ``python szlab_handshake_agent.py`` compatibility.
+    from graph_initialization import prepare_graph_initialization
     from common import load_yaml
     from package_simulation import write_snapshot_atomic
     from szlab_package_runtime import SzlabPackageRuntime, default_package_config_path
@@ -321,6 +323,8 @@ def build_parser() -> argparse.ArgumentParser:
         default="serve",
     )
     parser.add_argument("--config", default=_config_path(), help="YAML 配置文件")
+    parser.add_argument("--graph", type=Path, help="显式选择设备包既有启动图；仅 serve 使用")
+    parser.add_argument("--warehouse-roles", type=Path, help="协议角色到图内仓库实例 ID 的 JSON 映射")
     parser.add_argument(
         "--package-config",
         default=None,
@@ -502,8 +506,32 @@ def main(argv: list[str] | None = None) -> int:
     if selected_workflow != "all" and args.command in {"list", "check"}:
         specs = tuple(spec for spec in specs if spec.workflow_id == selected_workflow)
     if args.command == "list":
+        if args.graph is not None or args.warehouse_roles is not None:
+            print("list 不消费图初态参数", file=sys.stderr)
+            return 2
         _print_catalog(specs)
         return 0
+
+    initial_values = dict(config.get("initial_values", {}))
+    graph_initialization = None
+    if args.graph is not None or args.warehouse_roles is not None:
+        if (args.command != "serve" or args.no_initialize or args.graph is None
+                or args.warehouse_roles is None):
+            print("图初态需要 serve、显式图与角色绑定，且不能禁用初始化", file=sys.stderr)
+            return 2
+        try:
+            projector = load_module("szlab_poly_studio.simulation.graph_inputs").project_initial_inputs
+            graph_initialization = prepare_graph_initialization(
+                args.graph, args.warehouse_roles, projector=projector,
+                configured_values=initial_values,
+            )
+            initial_values = graph_initialization.initial_values
+            projection = graph_initialization.provenance
+            print(f"图初态已解析：{len(projection['values'])} 个映射输入，"
+                  f"{len(projection['unmapped_sites'])} 个未映射仓位；不代表完整反馈验收")
+        except (ValueError, OSError, ImportError, AttributeError, TypeError) as error:
+            print(f"图初态准备失败：{type(error).__name__}: {error}", file=sys.stderr)
+            return 2
 
     adapter = OpcUaVariableAdapter(
         args.url,
@@ -524,7 +552,7 @@ def main(argv: list[str] | None = None) -> int:
             pump=pump,
             process_delay=process_delay,
             delays=delays,
-            initial_values=dict(config.get("initial_values", {})),
+            initial_values=initial_values,
             s06_robot_workflow=s06_robot_workflow,
             s09_pipetting_workflow=s09_pipetting_workflow,
             s09_remaining_volume_ml=s09_remaining_volume_ml,
@@ -554,6 +582,8 @@ def main(argv: list[str] | None = None) -> int:
                 with snapshot_lock:
                     protocol_snapshot = simulator.protocol_snapshot()
                     protocol_snapshot["time_domain"] = "simulation_seconds"
+                    if graph_initialization is not None:
+                        protocol_snapshot["graph_initialization"] = graph_initialization.provenance
                     if s1_server is not None:
                         protocol_snapshot["s1_http"] = s1_server.snapshot()
                     write_snapshot_atomic(
