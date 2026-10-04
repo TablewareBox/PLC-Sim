@@ -22,3 +22,16 @@ Python支持沿用原产品的 `>=3.11,<3.12`。从同一仓分别构建并安�
 确认来源屏障、轨迹事件及消费同一 session 的节拍宿主。纯一阶计算参考不持有物料或时钟。
 不包含设备行为、物料世界、恢复或本次实际 SDK 验收。测试从已安装 wheel 导入公共 API。
 详见 docs/clock-health-trace.md、docs/source-barrier.md 和 docs/session-host.md。
+
+## 公共信号装配
+
+`plc-sim signals --help` 是本包的新入口，其他命令仍委托原 OPC UA 产品。
+工厂必须显式接受 `source=ModelSource` 并返回 `SignalAssembly`；CLI 校验提交、
+来源锁和实际文件，原会话负责推进，端点拥有者决定每个信号的写权限。
+`--steps` 用于有界执行；不指定时按原会话目标节拍等待。退出关闭本装配端点。
+
+`reference_signals.build_reference` 是显式 DI 参考 API，要求调用方指定 mode 和
+endpoint；它并非能直接传给 CLI 的 source-only 工厂。参考 CSV 随 wheel 安装。
+当前公共切片覆盖信号类型、来源、质量/TTL、会话所有权及回环端点；S06 目录、
+原驱动及规范物料效果接线属于后续设备/OS 功能组。本次没有重跑真实 Isaac，
+也未授予 S06 物理资格。`tools/verify_signals.py` 核对已安装 wheel 后运行回归。
