@@ -35,5 +35,3 @@ def test_missing_module_and_attribute_explain_selected_entry():
     assert isinstance(error.value.__cause__, ModuleNotFoundError)
     with pytest.raises(ModelLoadError, match="没有提供入口"):
         load_symbol("json:missing_factory_xyz")
-
-
