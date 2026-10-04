@@ -18,5 +18,7 @@ Python支持沿用原产品的 `>=3.11,<3.12`。从同一仓分别构建并安�
 设备包、GUI 或 SDK。安装时需提供 OS 的 `packages/simulation-contracts` wheel；
 既有 CLI 兼容依赖仍保留，命令范围没有新增。
 
-这是 #27 的合同消费者与原协调器切片；不含 #31 的 stop/健康、来源屏障或宿主，
-不包含设备行为、物料世界、恢复或实际 SDK 验收。测试从已安装 wheel 导入公共 API。
+基础来自 #27 的合同消费者与原协调器；随后 #31 切片加入停止请求、墙钟健康、
+确认来源屏障、轨迹事件及消费同一 session 的节拍宿主。纯一阶计算参考不持有物料或时钟。
+不包含设备行为、物料世界、恢复或本次实际 SDK 验收。测试从已安装 wheel 导入公共 API。
+详见 docs/clock-health-trace.md、docs/source-barrier.md 和 docs/session-host.md。
