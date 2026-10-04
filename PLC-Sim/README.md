@@ -1,6 +1,6 @@
 # PLC公共包命名空间与旧命令兼容
 
-此增量只新增可安装的 `unilab-plc-sim` 分发包、`plc_sim` 模块及 `plc-sim` 命令。版本 `0.2.6` 对应明确锁定的兼容运行时 `unilab-opcua-sim==0.2.6`，不表示尚未迁入的公共时钟、契约、设备模型已经发布。
+最初的命名空间切片新增可安装的 `unilab-plc-sim` 分发包、`plc_sim` 模块及 `plc-sim` 命令。初始版本 `0.2.6` 对应明确锁定的兼容运行时 `unilab-opcua-sim==0.2.6`；后续公共核心、信号装配及当前 `0.2.7` 合同依赖见下文，不授予设备模型或完整流程资格。
 
 原 `OpcUaSim/` 源码、`opcua_sim` 导入、`opcua-sim` 命令及其版本保持不变。新CLI只委托原CLI；没有复制或双重映射设备/GUI模块。仅 `import plc_sim` 不加载旧产品；调用兼容命令才加载 `opcua_sim.cli`。
 
@@ -14,9 +14,14 @@ Python支持沿用原产品的 `>=3.11,<3.12`。从同一仓分别构建并安�
 
 `plc_sim.model_loading` 提供显式模型入口及来源锁核对；`plc_sim.cosimulation`
 提供原确认步进协调器；`plc_sim.physics_mailbox` 提供私有目录跨进程确认传输。
-三者只依赖标准库及 `unilabos-sim-contracts==0.1.0`，导入不加载旧 OPC UA 产品、
+三者只依赖标准库及 `unilabos-sim-contracts==0.1.1`，导入不加载旧 OPC UA 产品、
 设备包、GUI 或 SDK。安装时需提供 OS 的 `packages/simulation-contracts` wheel；
 既有 CLI 兼容依赖仍保留，命令范围没有新增。
+
+公共包 `0.2.7` 精确锁定合同包 `0.1.1`，接收明确的 `m/s` 与 `mL/s` 量测；
+旧兼容运行时仍为 `unilab-opcua-sim==0.2.6`。帧 schema 沿用 1.0，但旧合同包
+不支持这两个单位，须用新 wheel 的正常依赖解析安装，不能绕过依赖检查拼装。
+来源屏障仍要求声明单位逐字匹配；本次不增加换算、积分、设备行为或联合流程资格。
 
 基础来自 #27 的合同消费者与原协调器；随后 #31 切片加入停止请求、墙钟健康、
 确认来源屏障、轨迹事件及消费同一 session 的节拍宿主。纯一阶计算参考不持有物料或时钟。
