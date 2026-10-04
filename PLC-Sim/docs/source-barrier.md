@@ -39,3 +39,13 @@ SessionHost 验证暂停/恢复/单步/停止，以及逻辑 deadline、取消�
 尚未发布的 #29/#38 接口，不能混作公共 PLC 包依赖。完整 ROS、安装包和全 SZLab 验收仍未完成。
 
 每个 SourceBinding.channels 都必须由 units 明确声明工程单位，构造时冻结副本。解析 Quantity 的原单位、规范 evidence.units、物理 SourceResult.units 均在逻辑提交前核对。解析 bool/string 使用显式 SourceResult.units='1'，同时保留原类型；禁止把 BOOL 转成 Quantity 数字来绕过信号类型。
+
+## 显式缺测
+
+解析来源可以在有效确认帧中返回已选择端口的 `None`，但必须同时提供
+`Sample(value=None, valid=False)` 和与绑定一致的显式单位。必需来源、完整端口集合、
+请求身份和采集边界仍须通过校验；无效来源确认与遗漏端口不能作为缺测推进。
+
+信号存储仅允许 sensor_input 的 unknown 质量承载 None，不执行数值转换，
+不保留上一次 Good 的工程值。协议端数值占位可能沿用旧 raw，但质量立即变为
+BadNoData，不能将占位解释成新观测。恢复有效采样后才恢复 Good。
