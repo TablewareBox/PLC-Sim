@@ -1,6 +1,6 @@
 # PLC公共包命名空间与旧命令兼容
 
-此增量只新增可安装的 `unilab-plc-sim` 分发包、`plc_sim` 模块及 `plc-sim` 命令。版本 `0.2.6` 对应明确锁定的兼容运行时 `unilab-opcua-sim==0.2.6`，不表示尚未迁入的公共时钟、契约、设备模型已经发布。
+最初的命名空间切片新增可安装的 `unilab-plc-sim` 分发包、`plc_sim` 模块及 `plc-sim` 命令。初始版本 `0.2.6` 对应明确锁定的兼容运行时 `unilab-opcua-sim==0.2.6`；后续公共核心、信号装配及当前 `0.2.7` 合同依赖见下文，不授予设备模型或完整流程资格。
 
 原 `OpcUaSim/` 源码、`opcua_sim` 导入、`opcua-sim` 命令及其版本保持不变。新CLI只委托原CLI；没有复制或双重映射设备/GUI模块。仅 `import plc_sim` 不加载旧产品；调用兼容命令才加载 `opcua_sim.cli`。
 

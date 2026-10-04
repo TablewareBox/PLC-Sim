@@ -18,3 +18,12 @@ def test_signals_routes_arguments_without_mutating_process_argv(monkeypatch):
     before=list(sys.argv)
     assert cli.main(['signals','--steps','2'])==19
     assert calls==[['--steps','2']] and sys.argv==before
+def test_installed_distribution_and_cli_report_the_same_version(capsys):
+    """公共包版本与原兼容运行时版本分别归因。"""
+    import importlib.metadata
+    import plc_sim
+    from plc_sim.cli import main
+    assert plc_sim.__version__ == importlib.metadata.version('unilab-plc-sim')
+    assert main(['--version']) == 0
+    assert capsys.readouterr().out.strip() == (
+        f'plc-sim {plc_sim.__version__}; compatibility runtime: unilab-opcua-sim 0.2.6')
