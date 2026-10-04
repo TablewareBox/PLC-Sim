@@ -14,9 +14,14 @@ Python支持沿用原产品的 `>=3.11,<3.12`。从同一仓分别构建并安�
 
 `plc_sim.model_loading` 提供显式模型入口及来源锁核对；`plc_sim.cosimulation`
 提供原确认步进协调器；`plc_sim.physics_mailbox` 提供私有目录跨进程确认传输。
-三者只依赖标准库及 `unilabos-sim-contracts==0.1.0`，导入不加载旧 OPC UA 产品、
+三者只依赖标准库及 `unilabos-sim-contracts==0.1.1`，导入不加载旧 OPC UA 产品、
 设备包、GUI 或 SDK。安装时需提供 OS 的 `packages/simulation-contracts` wheel；
 既有 CLI 兼容依赖仍保留，命令范围没有新增。
+
+公共包 `0.2.7` 精确锁定合同包 `0.1.1`，接收明确的 `m/s` 与 `mL/s` 量测；
+旧兼容运行时仍为 `unilab-opcua-sim==0.2.6`。帧 schema 沿用 1.0，但旧合同包
+不支持这两个单位，须用新 wheel 的正常依赖解析安装，不能绕过依赖检查拼装。
+来源屏障仍要求声明单位逐字匹配；本次不增加换算、积分、设备行为或联合流程资格。
 
 基础来自 #27 的合同消费者与原协调器；随后 #31 切片加入停止请求、墙钟健康、
 确认来源屏障、轨迹事件及消费同一 session 的节拍宿主。纯一阶计算参考不持有物料或时钟。

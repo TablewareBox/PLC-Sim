@@ -95,3 +95,31 @@ def test_analytic_boolean_retains_signal_type_with_explicit_dimensionless_unit(u
         return
     session.reset();session.step(single=True)
     assert session.observation('temperature').value is True
+
+
+@pytest.mark.parametrize('unit,wrong_unit', [('m/s', 'm'), ('mL/s', 'mL')])
+@pytest.mark.parametrize('matching', [True, False])
+def test_rate_quantity_uses_exact_declared_unit(unit: str, wrong_unit: str, matching: bool) -> None:
+    """依赖升级保留原来源屏障；速率不等于长度或体积，也不会隐式积分。"""
+    from dataclasses import replace
+    from unilabos_sim_contracts import StepToken
+
+    class Rate(Analytic):
+        def result(self, token: StepToken, channels: tuple[str, ...]) -> SourceResult:
+            result = super().result(token, channels)
+            evidence = result.evidence.model_copy(update={
+                'payload': {'temperature': Quantity(value=self.value, unit=unit)}})
+            return replace(result, evidence=evidence)
+
+    model = Rate()
+    selected = SourceBinding('heat', 'analytic', model, ('temperature',), 'request', DIGEST,
+                             units={'temperature': unit if matching else wrong_unit})
+    session = CoupledSession(SourceBarrierPort((selected,)), dt_ns=100_000_000,
+                             channels={'temperature': Channel()}, writers={})
+    if not matching:
+        with pytest.raises(CouplingError, match='工程单位'):
+            session.reset()
+        return
+    session.reset()
+    session.step(single=True)
+    assert session.observation('temperature').value == model.value
