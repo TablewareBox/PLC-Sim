@@ -1,0 +1,37 @@
+{
+  "base": "a41cb1905d67575c11f2b1c2d764bd7b97f2bdc1",
+  "historical_source": "8a7a2ec2a6bfdfde29312d25d90cd9564bf2102b",
+  "strategy": "Minimal coexistence on real main; not a cherry-pick of the historical136file rename.",
+  "adopted": [
+    {
+      "source": "PLC-Sim/pyproject.toml project.name/project.scripts/package-dir",
+      "target": "PLC-Sim/pyproject.toml",
+      "decision": "Use public distribution/module/command names; one new namespace, explicit old runtime dependency."
+    },
+    {
+      "source": "PLC-Sim/__init__.py version0.2.6",
+      "target": "PLC-Sim/__init__.py",
+      "decision": "Retain source version attribution, no simulation capability claim."
+    },
+    {
+      "source": "PLC-Sim/__main__.py and cli.py entry concept",
+      "target": "PLC-Sim/__main__.py and cli.py",
+      "decision": "New minimal delegation; original implementation remains opcua_sim, not copied."
+    }
+  ],
+  "deferred": [
+    "Directory-wide OpcUaSim rename",
+    "Device/GUI implementation and config/data migration",
+    "CI/desktop installers/launchers",
+    "Branding and deployment",
+    "PTLC/Modbus features",
+    "Historical package version jumps",
+    "All later public process/clock/contracts functionality"
+  ],
+  "original_main_files_changed": [],
+  "compatibility": [
+    "original opcua-sim entry and opcua_sim namespace unchanged",
+    "plc-sim documented as compatibility facade only",
+    "No sys.path injection or duplicate package-directory mapping"
+  ]
+}
