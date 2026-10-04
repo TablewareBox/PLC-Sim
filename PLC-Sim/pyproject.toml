@@ -8,7 +8,7 @@ version = "0.2.6"
 description = "PLC package namespace with the original OPC UA command compatibility entry"
 readme = "README.md"
 requires-python = ">=3.11,<3.12"
-dependencies = ["unilab-opcua-sim==0.2.6", "unilabos-sim-contracts==0.1.0"]
+dependencies = ["unilab-opcua-sim==0.2.6", "unilabos-sim-contracts==0.1.0", "opcua==0.98.13"]
 
 [project.scripts]
 plc-sim = "plc_sim.cli:main"
@@ -17,3 +17,6 @@ plc-sim = "plc_sim.cli:main"
 packages = ["plc_sim"]
 package-dir = {plc_sim = "."}
 include-package-data = false
+
+[tool.setuptools.package-data]
+plc_sim = ["data/reference_signals.csv"]
