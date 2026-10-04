@@ -92,10 +92,14 @@ def test_actual_assembly_and_opc_missing_transition(tmp_path,monkeypatch):
         assembly=SignalAssembly(original.session,csv_path=root/'signals.csv',semantics={
             'sensor':dict(role='sensor_input',writer='model',unit='mL',scale=1,offset=0,minimum=0,maximum=100,
                 period_ns=10,ttl_ns=20,source='analytic',source_ref='model@1',model_port='sensor')},
-            source=source,imported_file=root/'fixture_signals.py',readers={'sensor':lambda f:f.samples['sensor']},endpoint=address)
+            source=source,imported_file=root/'fixture_signals.py',readers=original.readers,endpoint=address)
         assembly.start();assembly.collect(assembly.session.initial_frame)
         client=Client(address);client.connect();node=client.get_node('ns=2;s=sensor')
-        def read():return node.get_attribute(ua.AttributeIds.Value,raise_on_bad_status=False)
+        def read():
+            request=ua.ReadParameters(); item=ua.ReadValueId()
+            item.NodeId=node.nodeid;item.AttributeId=ua.AttributeIds.Value
+            request.NodesToRead=[item]
+            return client.uaclient.read(request)[0]
         assert read().StatusCode.value==ua.StatusCodes.BadNoData
         assert assembly.store.snapshot(0)['signals']['sensor']['raw'] is None
         provider=assembly.session.backend.bindings[0].provider
