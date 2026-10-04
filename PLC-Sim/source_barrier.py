@@ -158,7 +158,10 @@ class SourceBarrierPort:
                 for name, sample in result.samples.items():
                     quantity = evidence.payload.get(name)
                     expected = quantity.value if isinstance(quantity, Quantity) else quantity
-                    if isinstance(quantity, Quantity):
+                    if quantity is None:
+                        # 来源已确认但明确缺测；无效空值不能冒充数值或有效传感器。
+                        valid_type = sample.value is None and sample.valid is False
+                    elif isinstance(quantity, Quantity):
                         valid_type = type(sample.value) in (int, float)
                     else:
                         valid_type = (type(quantity) in (bool, str) and type(sample.value) is type(quantity)

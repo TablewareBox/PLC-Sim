@@ -154,7 +154,9 @@ class SignalStore:
             if resource_version is not None and (type(resource_version) is not int or resource_version<0): raise ValueError('规范版本无效')
             if spec.source_ref!=source_ref: raise ValueError('采样来源不符')
             if spec.source=='resource_state' and (type(resource_version) is not int or resource_version<0): raise ValueError('规范投影缺少提交版本')
-            engineering=spec.convert(raw)
+            missing = raw is None and spec.role == 'sensor_input' and quality == 'unknown'
+            # 缺测保留身份与无效质量，不进行数值转换或沿用上次有效值。
+            engineering = None if missing else spec.convert(raw)
             value=dict(raw=deepcopy(raw),value=engineering,acquired_ns=acquired_ns,sequence=sequence,
                 source=spec.source,source_ref=source_ref,resource_version=resource_version,quality=quality,
                 session_id=self.session_id,epoch=self.epoch,writer=token.writer)
