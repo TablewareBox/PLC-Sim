@@ -9,65 +9,16 @@ from copy import deepcopy
 from dataclasses import dataclass
 import math
 import threading
-from typing import Any, Callable, Mapping, Protocol
+from typing import Any, Callable, Mapping
 import uuid
 
-
-class CouplingError(RuntimeError):
-    """步进、来源或写入权限不满足约束。"""
+from unilabos_sim_contracts import CouplingError, PhysicsFrame, PhysicsPort, Sample, StepToken
 
 
 def _positive(value: int, name: str, *, zero: bool = False) -> int:
     if type(value) is not int or value < (0 if zero else 1):
         raise ValueError(name + "必须是整数且满足下界")
     return value
-
-
-@dataclass(frozen=True)
-class StepToken:
-    world_id: str
-    session_id: str
-    epoch: int
-    tick: int
-    dt_ns: int
-
-    def __post_init__(self):
-        if any(not isinstance(value, str) or not value for value in (self.world_id, self.session_id)):
-            raise ValueError("步身份不能为空")
-        _positive(self.epoch, "epoch", zero=True)
-        _positive(self.tick, "tick", zero=True)
-        _positive(self.dt_ns, "物理步长")
-
-    @property
-    def time_ns(self) -> int:
-        return self.tick * self.dt_ns
-
-
-@dataclass(frozen=True)
-class Sample:
-    acquired_tick: int
-    sequence: int
-    value: Any
-    valid: bool = True
-
-    def __post_init__(self):
-        _positive(self.acquired_tick, "采集tick", zero=True)
-        _positive(self.sequence, "采集序号", zero=True)
-        if type(self.valid) is not bool:
-            raise ValueError("采样有效性必须是布尔值")
-
-
-@dataclass(frozen=True)
-class PhysicsFrame:
-    token: StepToken
-    elapsed_ns: int
-    samples: Mapping[str, Sample]
-
-
-class PhysicsPort(Protocol):
-    def step(self, token: StepToken, commands: Mapping[str, Any],
-             sample_channels: tuple[str, ...]) -> PhysicsFrame: ...
-    def reset(self, token: StepToken, sample_channels: tuple[str, ...]) -> PhysicsFrame: ...
 
 
 @dataclass(frozen=True)

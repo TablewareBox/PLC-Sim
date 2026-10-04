@@ -9,6 +9,7 @@ description = "CSV-driven OPC UA Server, Web GUI, and PLC handshake simulators"
 readme = "README.md"
 requires-python = ">=3.11,<3.12"
 dependencies = [
+  "unilabos-sim-contracts==0.1.0",
   "opcua==0.98.13",
   "PyYAML>=6.0,<7",
   "fastapi>=0.110,<1",
