@@ -6,13 +6,48 @@ import importlib.util
 from dataclasses import dataclass
 from pathlib import Path
 from types import ModuleType
-from typing import Any
+from typing import Any, Mapping, Protocol
 
 from unilabos_sim_contracts import SourceLock, VerifiedSource, verify_source
 
 
 class ModelLoadError(ImportError):
     """选定设备包能力无法加载。"""
+
+
+class SimulationDefinition(Protocol):
+    """外部目录的只读模型声明，不依赖 OS 的实现包。"""
+
+    @property
+    def fqid(self) -> str: ...
+
+    @property
+    def details(self) -> Mapping[str, Any]: ...
+
+
+class SimulationSelection(Protocol):
+    """由目录负责来源校验与延迟导入的已选模型。"""
+
+    @property
+    def definition(self) -> SimulationDefinition: ...
+
+    def load(self) -> type: ...
+
+
+def load_catalog_model(selected: SimulationSelection, *, attachment: str, provider: str) -> type:
+    """消费已选目录入口；不扫描目录、不构造设备或启动仿真。"""
+    contract = selected.definition.details["contract"]
+    if attachment not in contract["attachments"] or provider not in contract["providers"]:
+        raise ModelLoadError(
+            f"模型 {selected.definition.fqid} 不支持 attachment={attachment!r}, provider={provider!r}"
+        )
+    try:
+        model = selected.load()
+    except Exception as exc:
+        raise ModelLoadError(f"无法加载目录模型 {selected.definition.fqid}: {exc}") from exc
+    if not isinstance(model, type):
+        raise ModelLoadError(f"目录模型 {selected.definition.fqid} 入口必须返回类型")
+    return model
 
 
 @dataclass(frozen=True)
