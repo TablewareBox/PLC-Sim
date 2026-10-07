@@ -1,13 +1,26 @@
 """共享 OPC 标量 CSV schema；不加载设备模型、GUI 或运行配置。"""
 from __future__ import annotations
 import csv
-import logging`nimport os
+import logging
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 from opcua import ua
 
-log = logging.getLogger("plc-signals-csv")`n`ndef runtime_data_dir() -> Path:`n    configured = os.environ.get("PLCSIM_DATA_DIR")`n    if configured:`n        return Path(configured).expanduser().resolve()`n    return Path.home() / ".local" / "share" / "plc-sim"`n`ndef connection_state_path() -> Path:`n    configured = os.environ.get("PLCSIM_CONNECTION_STATE")`n    if configured:`n        return Path(configured).expanduser().resolve()`n    return runtime_data_dir() / "runtime" / "server-connections.json"
+log = logging.getLogger("plc-signals-csv")
+
+def runtime_data_dir() -> Path:
+    configured = os.environ.get("PLCSIM_DATA_DIR")
+    if configured:
+        return Path(configured).expanduser().resolve()
+    return Path.home() / ".local" / "share" / "plc-sim"
+
+def connection_state_path() -> Path:
+    configured = os.environ.get("PLCSIM_CONNECTION_STATE")
+    if configured:
+        return Path(configured).expanduser().resolve()
+    return runtime_data_dir() / "runtime" / "server-connections.json"
 
 VTYPE_MAP: Dict[str, ua.VariantType] = {
     "BOOLEAN": ua.VariantType.Boolean,
